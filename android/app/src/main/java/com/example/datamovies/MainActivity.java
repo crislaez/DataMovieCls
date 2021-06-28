@@ -1,4 +1,4 @@
-package com.example.datamoviescl;
+package com.example.datamovies;
 
 import com.getcapacitor.BridgeActivity;
 

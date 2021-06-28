@@ -57,6 +57,11 @@ export class TvService {
   };
 
   getTvsByIdGenre(page:string = '1', genre:string = '12'): Observable<any>{
+    // https://api.themoviedb.org/3/genre/28/movies?api_key=57e601c11dedd919bcbf7576f76caa11&page=1
+    // https://api.themoviedb.org/3/genre/10759/tv?api_key=57e601c11dedd919bcbf7576f76caa11&page=1
+
+    // https://api.themoviedb.org/3/genre/16/movies?api_key=57e601c11dedd919bcbf7576f76caa11&page=1
+    // https://api.themoviedb.org/3/genre/9648/tv?api_key=57e601c11dedd919bcbf7576f76caa11&page=1
     return this.http.get<any>(`${this.baseURL}genre/${genre}/tv?api_key=${this.apiKey}&page=${page}`).pipe(
       map( ({page, results, total_pages, total_results }) => ({tvs: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
       catchError((error) => {

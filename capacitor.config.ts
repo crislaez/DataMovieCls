@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.example.datamoviescl',
-  appName: 'DataMoviesCl',
+  appId: 'com.example.datamovies',
+  appName: 'DataMovies',
   webDir: 'www',
   bundledWebRuntime: false
 };

@@ -48,10 +48,10 @@ export const getTotalResult = createSelector(
 );
 
 
-// export const getMenuGenre = (genreId:string) => createSelector(
-//   getMenu,
-//   (menuGenre) => {
-//     return menuGenre.find(genre => genre?.id === Number(genreId)) || {}
-//   }
-// );
+export const getMenuGenre = (genreId:string) => createSelector(
+  getMenu,
+  (menuGenre) => {
+    return (menuGenre || [])?.find(genre => genre?.id === Number(genreId)) || {}
+  }
+);
 

@@ -5,7 +5,8 @@ import { Tv, TvService } from '@clmovies/shareds/tv';
 import { IonContent } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { catchError, filter, finalize, map, startWith, switchMap, tap } from 'rxjs/operators';
-
+import { Keyboard } from '@capacitor/keyboard';
+import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-search',
@@ -38,10 +39,10 @@ import { catchError, filter, finalize, map, startWith, switchMap, tap } from 'rx
           </form>
 
           <app-search-result class="div-result"
-          [serachResults]="(movies$ | async)"
-          [showInfo]="showInfo['movie']"
-          [pending]="pending"
-          [route]="'movie'">
+            [serachResults]="(movies$ | async)"
+            [showInfo]="showInfo['movie']"
+            [pending]="pending"
+            [route]="'movie'">
           </app-search-result>
         </ng-container>
 
@@ -112,19 +113,21 @@ export class SearchPage  {
   )
 
 
-  constructor( private _movie: MovieService, private _tv: TvService) {
+  constructor( private _movie: MovieService, private _tv: TvService, public platform: Platform) {
     // this.tvs$.subscribe(data => console.log(data))
   }
 
 
   searchSubmit(event: Event): void{
     event.preventDefault();
+    if(!this.platform.is('mobileweb')) Keyboard.hide();
     this.searchMovieValue$.next(this.search.value);
     this.showInfo['movie'] = true;
   }
 
   searchTvSubmit(event: Event): void{
     event.preventDefault();
+    if(!this.platform.is('mobileweb')) Keyboard.hide();
     this.searchTvValue$.next(this.searchTv.value);
     this.showInfo['tv'] = true;
   }

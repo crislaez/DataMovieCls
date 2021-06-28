@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { fronMovie, Menu, MovieActions } from '@clmovies/shareds/movie';
+import { fromTv } from '@clmovies/shareds/tv';
 
 @Component({
   selector: 'app-root',
@@ -29,8 +30,12 @@ import { fronMovie, Menu, MovieActions } from '@clmovies/shareds/movie';
         </ion-toolbar>
       </ion-header>
 
-      <ion-content *ngIf="(menu$ | async) as menu">
-        <ion-item class="text-color" *ngFor="let item of menu" [routerLink]="['/genre/'+item?.id]" (click)="deleteMovieByIdGenre()">{{item?.name}}</ion-item>
+      <ion-content *ngIf="(menuMovie$ | async) as menuMovie">
+        <ion-item class="text-color" *ngFor="let item of menuMovie" [routerLink]="['/genre/'+item?.id]" [queryParams]="{'genre':'movie'}" (click)="deleteMovieByIdGenre()">{{item?.name}} Movie</ion-item>
+      </ion-content >
+
+      <ion-content *ngIf="(menuTv$ | async) as menuTv">
+        <ion-item class="text-color" *ngFor="let item of menuTv" [routerLink]="['/genre/'+item?.id]" [queryParams]="{'genre':'tv'}" (click)="deleteMovieByIdGenre()">{{item?.name}} Tv</ion-item>
       </ion-content >
     </ion-menu>
 
@@ -62,11 +67,11 @@ import { fronMovie, Menu, MovieActions } from '@clmovies/shareds/movie';
 })
 export class RootComponent {
 
-  menu$: Observable<Menu[]> = this.store.pipe(select(fronMovie.getMenu));
-
+  menuMovie$: Observable<Menu[]> = this.store.pipe(select(fronMovie.getMenu));
+  menuTv$: Observable<Menu[]> = this.store.pipe(select(fromTv.getMenu));
 
   constructor(private menu: MenuController, private router: Router, private store: Store) {
-    // this.menu$.subscribe(data => console.log(data))
+    // this.menuTv$.subscribe(data => console.log(data))
   }
 
 

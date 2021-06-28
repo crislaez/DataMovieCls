@@ -41,7 +41,7 @@ const MovieReducer = createReducer(
   on(MovieActions.loadMoviesGenre, (state) => ({...state, pending: true})),
   on(MovieActions.saveMoviesGenre, (state, { movies, page, total_pages, total_results }) => ({...state, moviesGenre:[...state?.moviesGenre,...movies], page, total_pages, total_results,  pending: false })),
 
-  on(MovieActions.deleteMovieGenre, (state) => ({...state, moviesGenre:[]}))
+  on(MovieActions.deleteMovieGenre, (state) => ({...state, moviesGenre:[], page:1}))
 );
 
 export function reducer(state: State | undefined, action: MovieActions.MovieActionsUnion){
