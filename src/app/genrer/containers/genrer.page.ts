@@ -2,10 +2,10 @@ import { Component, ChangeDetectionStrategy, EventEmitter, ViewChild, SimpleChan
 import { fronMovie, Menu, Movie, MovieActions } from '@clmovies/shareds/movie';
 import { select, Store } from '@ngrx/store';
 import { combineLatest, Observable } from 'rxjs';
-import { shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
+import { map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { trackById, errorImage, emptyObject } from '@clmovies/shareds/shared/utils/utils';
 import { IonInfiniteScroll } from '@ionic/angular';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { fromTv, Tv, TvActions } from '@clmovies/shareds/tv';
 
 
@@ -27,18 +27,18 @@ import { fromTv, Tv, TvActions } from '@clmovies/shareds/tv';
           </ng-template>
         </div>
 
-        <ng-container *ngIf="(movies$ | async) as movies">
+        <ng-container *ngIf="(info$ | async) as info">
           <ng-container *ngIf="!(pending$ | async) || perPage > 1; else loader">
-            <ng-container *ngIf="movies?.length > 0; else noData">
+            <ng-container *ngIf="info?.data?.length > 0; else noData">
 
-              <ion-card class="ion-activatable ripple-parent fade-in-card" [routerLink]="['/movie/'+movie?.id]" *ngFor="let movie of movies; trackBy: trackById" >
-                <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+movie?.poster_path" [alt]="movie?.poster_path" (error)="errorImage($event)"/>
+              <ion-card class="ion-activatable ripple-parent fade-in-card" [routerLink]="['/'+info?.genre+'/'+item?.id]" *ngFor="let item of info?.data; trackBy: trackById" >
+                <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+item?.poster_path" [alt]="item?.poster_path" (error)="errorImage($event)"/>
                 <ion-card-header>
-                  <ion-card-title class="text-color">{{movie?.original_title}}</ion-card-title>
+                  <ion-card-title class="text-color">{{item?.original_title || item?.original_name}}</ion-card-title>
                 </ion-card-header>
 
                 <ion-card-content class="text-color">
-                  Points: {{movie?.vote_average}}
+                  Points: {{item?.vote_average}}
                 </ion-card-content>
 
                 <ion-ripple-effect></ion-ripple-effect>
@@ -70,7 +70,7 @@ import { fromTv, Tv, TvActions } from '@clmovies/shareds/tv';
 
         <!-- LOADER  -->
         <ng-template #loader>
-          <ion-spinner color="primary"></ion-spinner>
+          <ion-spinner class="loader" color="primary"></ion-spinner>
         </ng-template>
 
       </div>
@@ -96,7 +96,7 @@ export class GenrerPage {
   pending$: Observable<boolean>;
   genre$: Observable<Menu>;
 
-  movies$: Observable<any> = combineLatest([
+  info$: Observable<any> = combineLatest([
     this.reload$.pipe(startWith('')),
     this.route.params,
     this.route.queryParams,
@@ -114,25 +114,25 @@ export class GenrerPage {
     }),
     switchMap(([,{idGenre}, {genre}, page]) => {
       if(genre === 'movie'){
-        return this.store.pipe(select(fronMovie.getMoviesGenre))
+        return this.store.pipe(select(fronMovie.getMoviesGenre),
+          map(movies => ({data:movies, genre}))
+        )
       }else{
-        return this.store.pipe(select(fromTv.getTvState))
+        return this.store.pipe(select(fromTv.getTvsGenre),
+          map(tvs => ({data:tvs, genre}))
+        )
       }
     }),
     shareReplay(1)
   );
 
 
-  constructor(private store: Store, private route: ActivatedRoute) {
-
+  constructor(private store: Store, private route: ActivatedRoute, private router: Router) {
+    // this.info$.subscribe(data => console.log(data))
   }
 
 
   ngOnInit(){
-    // console.log('holaaa')
-    // this.store.dispatch(MovieActions.deleteMovieGenre());
-    // this.store.dispatch(TvActions.deleteTvsGenre())
-
     this.title = this.route.snapshot.queryParams.genre
     if(this.route.snapshot.queryParams.genre === 'movie'){
       this.total$ = this.store.pipe(select(fronMovie.getTotalPages));
@@ -175,5 +175,7 @@ export class GenrerPage {
       event.target.complete();
     }, 500);
   }
+
+
 
 }

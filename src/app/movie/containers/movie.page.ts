@@ -17,7 +17,7 @@ import { emptyObject, errorImage } from '@clmovies/shareds/shared/utils/utils';
 
             <!-- HEADER  -->
           <div class="header fade-in-card" no-border>
-            <ion-back-button defaultHref="home" class="text-second-color" [text]="''"></ion-back-button>
+            <ion-back-button defaultHref="../" class="text-second-color" [text]="''"></ion-back-button>
             <h1 class="text-second-color">{{movie?.title}} ({{movie?.release_date | date: 'y'}})</h1>
             <div class="header-container-empty" ></div>
           </div>
@@ -83,7 +83,7 @@ import { emptyObject, errorImage } from '@clmovies/shareds/shared/utils/utils';
 
         <!-- LOADER  -->
         <ng-template #loader>
-          <ion-spinner color="primary"></ion-spinner>
+          <ion-spinner class="loader" color="primary"></ion-spinner>
         </ng-template>
 
       </div>
