@@ -151,8 +151,10 @@ export class SearchPage  {
   segmentChanged(event): void{
     this.scrollToTop()
     this.showMovie = event?.detail?.value
+    this.search.reset();
+    this.searchTv.reset();
     this.typeSearch$.next(event?.detail?.value)
   }
 
-
 }
+

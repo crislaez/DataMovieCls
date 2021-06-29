@@ -6,6 +6,7 @@ import { SearchPage } from './containers/search.page';
 import { SearchResultComponent } from './components/search-result.component';
 import { SharedPageModule } from '@clmovies/shareds/shared/shared.module';
 import { MovieModule } from '@clmovies/shareds/movie/movie.module';
+import { TvModule } from '@clmovies/shareds/tv/tv.module';
 
 @NgModule({
   imports: [
@@ -13,6 +14,7 @@ import { MovieModule } from '@clmovies/shareds/movie/movie.module';
     IonicModule,
     SharedPageModule,
     MovieModule,
+    TvModule,
     SearchPageRoutingModule
   ],
   declarations: [

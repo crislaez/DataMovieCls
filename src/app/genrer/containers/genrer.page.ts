@@ -110,7 +110,11 @@ export class GenrerPage {
     }),
     tap(([,{idGenre}, {genre}, page]) => {
       if(genre === 'movie') this.store.dispatch(MovieActions.loadMoviesGenre({page: page.toString(), idGenre}));
-      else this.store.dispatch(TvActions.loadTvsGenre({page: page.toString(), idGenre}))
+      else{
+        console.log(page.toString())
+        console.log(idGenre)
+        this.store.dispatch(TvActions.loadTvsGenre({page: page.toString(), idGenre}))
+      }
     }),
     switchMap(([,{idGenre}, {genre}, page]) => {
       if(genre === 'movie'){
@@ -128,7 +132,7 @@ export class GenrerPage {
 
 
   constructor(private store: Store, private route: ActivatedRoute, private router: Router) {
-    // this.info$.subscribe(data => console.log(data))
+    this.info$.subscribe(data => console.log(data))
   }
 
 
