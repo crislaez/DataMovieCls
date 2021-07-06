@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { fronMovie, Menu, MovieActions } from '@clmovies/shareds/movie';
 import { fromTv } from '@clmovies/shareds/tv';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -31,11 +32,21 @@ import { fromTv } from '@clmovies/shareds/tv';
       </ion-header>
 
       <ion-content *ngIf="(menuMovie$ | async) as menuMovie">
-        <ion-item class="text-color" *ngFor="let item of menuMovie" [routerLink]="['/genre/'+item?.id]" [queryParams]="{'genre':'movie'}" (click)="deleteMovieByIdGenre()">{{item?.name}} Movie</ion-item>
+        <ng-container *ngIf="menuMovie?.length > 0; else noMoviesList">
+          <ion-item class="text-color" *ngFor="let item of menuMovie" [routerLink]="['/genre/'+item?.id]" [queryParams]="{'genre':'movie'}" (click)="deleteMovieByIdGenre()">{{item?.name}} Movie</ion-item>
+        </ng-container>
+        <ng-template #noMoviesList>
+          <ion-item class="text-color">no data</ion-item>
+        </ng-template>
       </ion-content >
 
       <ion-content *ngIf="(menuTv$ | async) as menuTv">
-        <ion-item class="text-color" *ngFor="let item of menuTv" [routerLink]="['/genre/'+item?.id]" [queryParams]="{'genre':'tv'}" (click)="deleteMovieByIdGenre()">{{item?.name}} Tv</ion-item>
+        <ng-container *ngIf="menuTv?.length > 0; else noTvList">
+          <ion-item class="text-color" *ngFor="let item of menuTv" [routerLink]="['/genre/'+item?.id]" [queryParams]="{'genre':'tv'}" (click)="deleteMovieByIdGenre()">{{item?.name}} Tv</ion-item>
+        </ng-container>
+        <ng-template #noTvList>
+          <ion-item class="text-color">no data</ion-item>
+        </ng-template>
       </ion-content >
     </ion-menu>
 

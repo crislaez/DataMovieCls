@@ -35,7 +35,7 @@ import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 
       <div class="div-container">
         <ng-container *ngIf="(tvs$ | async) as tvs; else loader">
-          <ng-container *ngIf="!(pending$ | async); else loader">
+          <ng-container *ngIf="!(pending$ | async) || perPage > 1; else loader">
 
             <ng-container *ngIf="tvs?.length > 0; else noData">
               <ion-card class="ion-activatable ripple-parent fade-in-card" [routerLink]="['/tv/'+tv?.id]" *ngFor="let tv of tvs; trackBy: trackById" >
@@ -52,7 +52,7 @@ import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 
               <ng-container *ngIf="(total$ | async) as total">
                 <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
-                  <ion-infinite-scroll-content loadingSpinner="crescent" color="primary">
+                  <ion-infinite-scroll-content class="loadingspinner">
                   </ion-infinite-scroll-content>
                 </ion-infinite-scroll>
               </ng-container>
@@ -75,7 +75,7 @@ import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 
       <!-- LOADER  -->
       <ng-template #loader>
-        <ion-spinner color="primary"></ion-spinner>
+        <ion-spinner class="loadingspinner"></ion-spinner>
       </ng-template>
 
     </div>

@@ -34,8 +34,8 @@ import { Platform } from '@ionic/angular';
         </div>
 
         <ng-container *ngIf="showMovie === 'movie' ; else showTv">
-          <form class="form" (submit)="searchSubmit($event)">
-            <ion-searchbar color="light" placeholder="Buscar..." [formControl]="search"></ion-searchbar>
+          <form class="form" (submit)="searchSubmit($event)" >
+            <ion-searchbar color="light" placeholder="Buscar..." [formControl]="search" (ionClear)="clearSearchMovie($event)"></ion-searchbar>
           </form>
 
           <app-search-result class="div-result"
@@ -48,7 +48,7 @@ import { Platform } from '@ionic/angular';
 
         <ng-template #showTv>
           <form class="form" (submit)="searchTvSubmit($event)">
-            <ion-searchbar color="light" placeholder="Buscar..." [formControl]="searchTv"></ion-searchbar>
+            <ion-searchbar color="light" placeholder="Buscar..." [formControl]="searchTv" (ionClear)="clearSearchTv($event)"></ion-searchbar>
           </form>
 
           <app-search-result class="div-result"
@@ -80,11 +80,11 @@ export class SearchPage  {
   reload$ = new EventEmitter();
   typeSearch$ = new EventEmitter()
   pending = false;
+  showMovie = 'movie';
   showInfo:{[key:string]:boolean} = {
     movie: false,
     tv: false
-  }
-  showMovie = 'movie'
+  };
 
   movies$: Observable<Movie[]> = this.searchMovieValue$.pipe(
     startWith(''),
@@ -110,7 +110,7 @@ export class SearchPage  {
         finalize(() => this.pending = false)
       )
     )
-  )
+  );
 
 
   constructor( private _movie: MovieService, private _tv: TvService, public platform: Platform) {
@@ -118,6 +118,7 @@ export class SearchPage  {
   }
 
 
+   //FORMULARIO MOVIE
   searchSubmit(event: Event): void{
     event.preventDefault();
     if(!this.platform.is('mobileweb')) Keyboard.hide();
@@ -125,6 +126,7 @@ export class SearchPage  {
     this.showInfo['movie'] = true;
   }
 
+   //FORMULARIO TV
   searchTvSubmit(event: Event): void{
     event.preventDefault();
     if(!this.platform.is('mobileweb')) Keyboard.hide();
@@ -132,6 +134,23 @@ export class SearchPage  {
     this.showInfo['tv'] = true;
   }
 
+  // DELETE SEARCH MOVIE
+  clearSearchMovie(event): void{
+    if(!this.platform.is('mobileweb')) Keyboard.hide();
+    this.search.reset();
+    this.searchMovieValue$.next(' ');
+    this.showInfo['movie'] = false;
+  }
+
+  // DELETE SEARCH TV
+  clearSearchTv(event): void{
+    if(!this.platform.is('mobileweb')) Keyboard.hide();
+    this.searchTv.reset();
+    this.searchTvValue$.next(' ');
+    this.showInfo['tv'] = false;
+  }
+
+  // REFRES
   doRefresh(event) {
     setTimeout(() => {
       this.search.reset();

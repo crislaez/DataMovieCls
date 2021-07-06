@@ -83,7 +83,7 @@ import { emptyObject, errorImage } from '@clmovies/shareds/shared/utils/utils';
 
         <!-- LOADER  -->
         <ng-template #loader>
-          <ion-spinner class="loader" color="primary"></ion-spinner>
+          <ion-spinner class="loadingspinner"></ion-spinner>
         </ng-template>
 
       </div>
@@ -97,6 +97,7 @@ export class MoviePage  {
   emptyObject = emptyObject;
   errorImage = errorImage;
   reload$ = new EventEmitter();
+
   movie$: Observable<Movie> = combineLatest([
     this.route?.params,
     this.reload$.pipe(startWith(''))

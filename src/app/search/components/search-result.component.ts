@@ -13,7 +13,7 @@ import { errorImage, trackById } from '@clmovies/shareds/shared/utils/utils';
 
     <!-- LOADER  -->
     <ng-template #loader>
-      <ion-spinner color="primary"></ion-spinner>
+      <ion-spinner class="loadingspinner"></ion-spinner>
     </ng-template>
 
     <div class="div-container margin-top">

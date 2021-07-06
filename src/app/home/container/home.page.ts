@@ -35,7 +35,7 @@ import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 
         <div class="div-container">
           <ng-container *ngIf="(movies$ | async) as movies; else loader">
-            <ng-container *ngIf="!(pending$ | async); else loader">
+            <ng-container *ngIf="!(pending$ | async) || perPage > 1; else loader">
               <ng-container *ngIf="movies?.length > 0; else noData">
               <!-- [routerLink]="['/anew/'+aNew?.title]" [queryParams]="{ismovies:true}" -->
                 <ion-card class="ion-activatable ripple-parent fade-in-card" [routerLink]="['/movie/'+movie?.id]" *ngFor="let movie of movies; trackBy: trackById" >
@@ -52,7 +52,7 @@ import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 
                 <ng-container *ngIf="(total$ | async) as total">
                   <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
-                    <ion-infinite-scroll-content loadingSpinner="crescent" color="primary">
+                    <ion-infinite-scroll-content class="loadingspinner">
                     </ion-infinite-scroll-content>
                   </ion-infinite-scroll>
                 </ng-container>
@@ -76,7 +76,7 @@ import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 
         <!-- LOADER  -->
         <ng-template #loader>
-          <ion-spinner color="primary"></ion-spinner>
+          <ion-spinner class="loadingspinner"></ion-spinner>
         </ng-template>
 
       </div>

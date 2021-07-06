@@ -47,7 +47,7 @@ import { fromTv, Tv, TvActions } from '@clmovies/shareds/tv';
               <!-- INFINITE SCROLL  -->
               <ng-container *ngIf="(total$ | async) as total">
                 <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
-                  <ion-infinite-scroll-content loadingSpinner="crescent" color="primary">
+                  <ion-infinite-scroll-content class="loadingspinner">
                   </ion-infinite-scroll-content>
                 </ion-infinite-scroll>
               </ng-container>
@@ -70,7 +70,7 @@ import { fromTv, Tv, TvActions } from '@clmovies/shareds/tv';
 
         <!-- LOADER  -->
         <ng-template #loader>
-          <ion-spinner class="loader" color="primary"></ion-spinner>
+          <ion-spinner class="loadingspinner"></ion-spinner>
         </ng-template>
 
       </div>
@@ -132,7 +132,7 @@ export class GenrerPage {
 
 
   constructor(private store: Store, private route: ActivatedRoute, private router: Router) {
-    this.info$.subscribe(data => console.log(data))
+    // this.info$.subscribe(data => console.log(data))
   }
 
 
