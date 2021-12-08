@@ -1,0 +1,1 @@
+{"ast":null,"code":"import * as fronMovie from './reducers';\nexport * from './models';\nexport * from './actions';\nexport * from './services/movie.service';\nexport { fronMovie };","map":null,"metadata":{},"sourceType":"module"}

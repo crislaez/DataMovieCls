@@ -1,3 +1,4 @@
+import { IonContent } from "@ionic/angular";
 
 export const trackById = (_: number, item: any): number => {
   return item.id;
@@ -11,3 +12,13 @@ export const emptyObject = (object: any): boolean => {
   return Object.keys(object || {})?.length > 0 ? true : false
 }
 
+export const gotToTop = (content: IonContent): void => {
+  content.scrollToTop(500);
+}
+
+export enum EntityStatus {
+  Initial = 'initial',
+  Pending = 'pending',
+  Loaded = 'loaded',
+  Error = 'error'
+};

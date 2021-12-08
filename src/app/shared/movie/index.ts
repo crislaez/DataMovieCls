@@ -1,5 +1,4 @@
-import * as fronMovie from './reducers'
+export * as fronMovie from './selectors/movie.selectors';
+export * as MovieActions from './actions/movie.actions';
 export * from './models';
-export * from './actions';
 export * from './services/movie.service';
-export { fronMovie }

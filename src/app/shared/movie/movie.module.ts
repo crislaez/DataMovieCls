@@ -1,19 +1,16 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
-
-import { StoreModule} from '@ngrx/store';
-import * as fromMovie from './reducers';
+import { NgModule } from '@angular/core';
+import { NotificationModule } from '@clmovies/shareds/notification/notification.module';
 import { EffectsModule } from '@ngrx/effects';
+import { StoreModule } from '@ngrx/store';
 import { MovieEffects } from './effects/movie.effects';
+import * as fromMovie from './reducers/movie.reducer';
 
 @NgModule({
   imports: [
     CommonModule,
-    FormsModule,
-    IonicModule,
-    StoreModule.forFeature(fromMovie.movieKey, fromMovie.reducer),
+    NotificationModule,
+    StoreModule.forFeature(fromMovie.movieFeatureKey, fromMovie.reducer),
     EffectsModule.forFeature([MovieEffects])
   ]
 })

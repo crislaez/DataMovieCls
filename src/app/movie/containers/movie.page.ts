@@ -1,10 +1,10 @@
-import { Component, ChangeDetectionStrategy, EventEmitter } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Movie, MovieService } from '@clmovies/shareds/movie';
-import { combineLatest, Observable } from 'rxjs';
-import { catchError, filter, map, startWith, switchMap, tap } from 'rxjs/operators';
+import { fronMovie, Movie, MovieService } from '@clmovies/shareds/movie';
 import { emptyObject, errorImage } from '@clmovies/shareds/shared/utils/utils';
-
+import { select, Store } from '@ngrx/store';
+import { combineLatest, Observable } from 'rxjs';
+import { catchError, filter, map, startWith, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-movie',
@@ -34,32 +34,32 @@ import { emptyObject, errorImage } from '@clmovies/shareds/shared/utils/utils';
             <ion-card-content>
 
               <div class="displays-between width-max">
-                <span class="span-bold">Genres: </span>
+                <span class="span-bold">{{'COMMON.GENRES' | translate }}: </span>
                 <span class="width-half">{{getMovieArrayData(movie?.genres)}}</span>
               </div>
 
               <div class="displays-between width-max margin-top">
-                <span class="span-bold">Product company: </span>
+                <span class="span-bold">{{'COMMON.PRODUCT_COMPANY' | translate }}: </span>
                 <span class="width-half">{{getMovieArrayData(movie?.production_companies)}}</span>
               </div>
 
               <div class="displays-between width-max margin-top">
-                <span class="span-bold">Note: </span>
+                <span class="span-bold">{{'COMMON.NOTE' | translate }}: </span>
                 <span class="width-half">{{movie?.vote_average}}</span>
               </div>
 
               <div class="displays-between width-max margin-top">
-                <span class="span-bold">Date: </span>
+                <span class="span-bold">{{'COMMON.DATE' | translate }}: </span>
                 <span class="width-half">{{movie?.release_date | date: 'MMM d, y'}}</span>
               </div>
 
               <div *ngIf="movie?.homepage" class="displays-between width-max margin-top">
-                <span class="span-bold">Show in web: </span>
-                <a class="width-half" [href]="movie?.homepage">Here</a>
+                <span class="span-bold">{{'COMMON.SHOW_IN_WEB' | translate }}: </span>
+                <a class="width-half" [href]="movie?.homepage">{{'COMMON.HERE' | translate }}</a>
               </div>
 
               <div class="displays-center width-max margin-top">
-                <span class="span-bold width-max">Description</span>
+                <span class="span-bold width-max">{{'COMMON.DESCRIPTION' | translate }}</span>
                 <span>{{movie?.overview}}</span>
               </div>
 
@@ -74,10 +74,21 @@ import { emptyObject, errorImage } from '@clmovies/shareds/shared/utils/utils';
           <ion-refresher-content></ion-refresher-content>
         </ion-refresher>
 
+        <!-- IS ERROR -->
+        <ng-template #serverError>
+          <div class="error-serve">
+            <div>
+              <span><ion-icon class="text-second-color big-size" name="cloud-offline-outline"></ion-icon></span>
+              <br>
+              <span class="text-second-color">{{'COMMON.ERROR' | translate }}</span>
+            </div>
+          </div>
+        </ng-template>
+
         <!-- IS NO DATA  -->
         <ng-template #noData>
           <div class="error-serve">
-            <span class="text-second-color">No data</span>
+            <span class="text-second-color">{{'COMMON.NORESULT' | translate }}</span>
           </div>
         </ng-template>
 
@@ -97,6 +108,7 @@ export class MoviePage  {
   emptyObject = emptyObject;
   errorImage = errorImage;
   reload$ = new EventEmitter();
+  status$ = this.store.pipe(select(fronMovie.getStatus));
 
   movie$: Observable<Movie> = combineLatest([
     this.route?.params,
@@ -112,9 +124,11 @@ export class MoviePage  {
   );
 
 
-  constructor(private route: ActivatedRoute, private _movie: MovieService) {
-    // this.movie$.subscribe(data => console.log(data))
-   }
+  constructor(
+    private store: Store,
+    private route: ActivatedRoute,
+    private _movie: MovieService
+  ) { }
 
 
    getMovieArrayData(movieArrayData: any): string{

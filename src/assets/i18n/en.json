@@ -1,0 +1,34 @@
+{
+  "COMMON":{
+    "TITLE":"Data Movies Cl",
+    "MENU":"Menu",
+    "NORESULT":"No data",
+    "NO_DATA":"you have nothing saved",
+    "ERROR":"An error has occurred, swipe down to reload",
+    "SEARCH":"Search...",
+    "POPULAR":"Popular",
+    "TOP_RATED":"Top rated",
+    "UPCOMMING":"Upcoming",
+    "POINTS":"Points",
+    "GENRES":"Genres",
+    "PRODUCT_COMPANY":"Product company",
+    "NOTE":"Note",
+    "DATE":"Date",
+    "SHOW_IN_WEB":"Show in web",
+    "DESCRIPTION":"Description",
+    "ON_AIR":"On air",
+    "HERE":"Here",
+    "MOVIE":"Movie",
+    "MOVIES":"Movies",
+    "TV":"Tv",
+    "TVS":"Tvs"
+  },
+  "ERRORS":{
+    "ERROR_LOAD_MOVIES":"error loading movies",
+    "ERROR_LOAD_TVS":"error loading tvs",
+    "ERROR_LOAD_TV_MENU":"error loading tv menu",
+    "ERROR_LOAD_TV_GENRE":"error loading tv genre",
+    "ERROR_LOAD_MOVIE_MENU":"error loading movie menu",
+    "ERROR_LOAD_MOVIE_GENRE":"error loading movie genre"
+  }
+}

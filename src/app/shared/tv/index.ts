@@ -1,5 +1,4 @@
-import * as fromTv from './reducers'
+export * as fromTv from './selectors/tv.selectors'
 export * from './models';
-export * from './actions';
+export * as TvActions from './actions/tv.actions';
 export * from './services/tv.service';
-export { fromTv }

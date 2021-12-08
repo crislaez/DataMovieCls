@@ -1,9 +1,10 @@
-import { Component, ChangeDetectionStrategy, EventEmitter } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Tv, TvService } from '@clmovies/shareds/tv';
-import { combineLatest, Observable } from 'rxjs';
-import { catchError, filter, map, startWith, switchMap, tap } from 'rxjs/operators';
 import { emptyObject, errorImage } from '@clmovies/shareds/shared/utils/utils';
+import { fromTv, Tv, TvService } from '@clmovies/shareds/tv';
+import { select, Store } from '@ngrx/store';
+import { combineLatest, Observable } from 'rxjs';
+import { catchError, filter, map, startWith, switchMap } from 'rxjs/operators';
 
 
 @Component({
@@ -34,32 +35,32 @@ import { emptyObject, errorImage } from '@clmovies/shareds/shared/utils/utils';
           <ion-card-content>
 
             <div class="displays-between width-max">
-              <span class="span-bold">Genres: </span>
+              <span class="span-bold">{{'COMMON.GENRES' | translate }}: </span>
               <span class="width-half">{{getMovieArrayData(tv?.genres)}}</span>
             </div>
 
             <div class="displays-between width-max margin-top">
-              <span class="span-bold">Product company: </span>
+              <span class="span-bold">{{'COMMON.PRODUCT_COMPANY' | translate }}: </span>
               <span class="width-half">{{getMovieArrayData(tv?.production_companies)}}</span>
             </div>
 
             <div class="displays-between width-max margin-top">
-              <span class="span-bold">Note: </span>
+              <span class="span-bold">{{'COMMON.NOTE' | translate }}: </span>
               <span class="width-half">{{tv?.vote_average}}</span>
             </div>
 
             <div class="displays-between width-max margin-top">
-              <span class="span-bold">Date: </span>
+              <span class="span-bold">{{'COMMON.DATE' | translate }}: </span>
               <span class="width-half">{{tv?.first_air_date | date: 'MMM d, y'}}</span>
             </div>
 
             <div *ngIf="tv?.homepage" class="displays-between width-max margin-top">
-              <span class="span-bold">Show in web: </span>
-              <a class="width-half" [href]="tv?.homepage">Here</a>
+              <span class="span-bold">{{'COMMON.SHOW_IN_WEB' | translate }}: </span>
+              <a class="width-half" [href]="tv?.homepage">{{'COMMON.HERE' | translate }}</a>
             </div>
 
             <div class="displays-center width-max margin-top">
-              <span class="span-bold width-max">Description</span>
+              <span class="span-bold width-max">{{'COMMON.DESCRIPTION' | translate }}</span>
               <span>{{tv?.overview}}</span>
             </div>
 
@@ -68,6 +69,17 @@ import { emptyObject, errorImage } from '@clmovies/shareds/shared/utils/utils';
       </ng-container>
      </ng-container>
 
+
+      <!-- IS ERROR -->
+      <ng-template #serverError>
+        <div class="error-serve">
+          <div>
+            <span><ion-icon class="text-second-color big-size" name="cloud-offline-outline"></ion-icon></span>
+            <br>
+            <span class="text-second-color">{{'COMMON.ERROR' | translate }}</span>
+          </div>
+        </div>
+      </ng-template>
 
        <!-- REFRESH -->
       <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
@@ -98,6 +110,8 @@ export class TvPage {
   errorImage = errorImage;
   reload$ = new EventEmitter();
 
+  status$ = this.store.pipe(select(fromTv.getStatus));
+
   tv$: Observable<Tv> = combineLatest([
     this.route?.params,
     this.reload$.pipe(startWith(''))
@@ -112,9 +126,11 @@ export class TvPage {
   );
 
 
-  constructor(private route: ActivatedRoute, private _tv: TvService) {
-    // this.tv$.subscribe(data => console.log(data))
-   }
+  constructor(
+    private store: Store,
+    private route: ActivatedRoute,
+    private _tv: TvService
+  ) { }
 
 
    getMovieArrayData(movieArrayData: any): string{

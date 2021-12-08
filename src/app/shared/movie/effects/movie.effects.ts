@@ -1,11 +1,11 @@
-import { Location } from '@angular/common';
 import { Injectable } from '@angular/core';
+import { NotificationActions } from '@clmovies/shareds/notification';
+import { EntityStatus } from '@clmovies/shareds/shared/utils/utils';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { MovieActions } from '../actions';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import * as MovieActions from '../actions/movie.actions';
 import { MovieService } from '../services/movie.service';
-
 
 @Injectable()
 export class MovieEffects {
@@ -15,8 +15,11 @@ export class MovieEffects {
       ofType(MovieActions.loadMenu),
       switchMap( () =>
         this._movie.getMenu().pipe(
-          map( (menu) => MovieActions.saveMenu({ menu: menu || []})),
-          catchError( () => [MovieActions.saveMenu({ menu: [] })]),
+          map(menu => MovieActions.saveMenu({ menu, status: EntityStatus.Loaded, error: undefined })),
+          catchError( (error) => of(
+            MovieActions.saveMenu({ menu: [], status: EntityStatus.Error, error }),
+            NotificationActions.notificationFailure({message: 'ERRORS.ERROR_LOAD_MOVIE_MENU'})
+          ))
         )
       )
     )
@@ -27,8 +30,11 @@ export class MovieEffects {
       ofType(MovieActions.loadMovies),
       switchMap( ({typeMovie, page}) =>
         this._movie.getMoviesPopular(typeMovie, page).pipe(
-          map( ({movies, page, total_pages, total_results}) => MovieActions.saveMovies({ movies: movies || [], page: page || 1, total_pages: total_pages || 0 , total_results: total_results || 0})),
-          catchError( () => [MovieActions.saveMovies({ movies: [], page: 1, total_pages: 0 , total_results:0 })]),
+          map( ({movies, page, total_pages, total_results}) => MovieActions.saveMovies({ movies, page, total_pages, total_results, status: EntityStatus.Loaded, error: undefined })),
+          catchError( (error) => of(
+            MovieActions.saveMovies({ movies: [], page: 1, total_pages: 0 , total_results:0, status: EntityStatus.Error, error }),
+            NotificationActions.notificationFailure({message: 'ERRORS.ERROR_LOAD_MOVIES'})
+          ))
         )
       )
     )
@@ -39,8 +45,11 @@ export class MovieEffects {
       ofType(MovieActions.loadMoviesGenre),
       switchMap( ({page, idGenre}) =>
         this._movie.getMoviesByIdGenre(page, idGenre).pipe(
-          map( ({movies, page, total_pages, total_results}) => MovieActions.saveMoviesGenre({ movies: movies || [], page: page || 1, total_pages: total_pages || 0 , total_results: total_results || 0})),
-          catchError( () => [MovieActions.saveMoviesGenre({ movies: [], page: 1, total_pages: 0 , total_results:0 })]),
+          map( ({movies, page, total_pages, total_results}) => MovieActions.saveMoviesGenre({ movies, page, total_pages, total_results, status: EntityStatus.Loaded, error: undefined })),
+          catchError( (error) => of(
+            MovieActions.saveMoviesGenre({ movies: [], page: 1, total_pages: 0 , total_results:0, status: EntityStatus.Error, error }),
+            NotificationActions.notificationFailure({message: 'ERRORS.ERROR_LOAD_MOVIE_GENRE'})
+          ))
         )
       )
     )
@@ -50,9 +59,12 @@ export class MovieEffects {
     of(MovieActions.loadMenu())
   );
 
+
+
   constructor(
     private actions$: Actions,
-    private _movie: MovieService,
-    private location: Location
+    private _movie: MovieService
   ){}
+
+
 }

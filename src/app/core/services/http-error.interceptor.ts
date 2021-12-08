@@ -1,38 +1,46 @@
-// import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-// import { Store } from '@ngrx/store';
-// import { EMPTY, Observable, throwError } from 'rxjs';
-// import { catchError, switchMap } from 'rxjs/operators';
-// import { AuthActions, AuthService } from '../modules/auth';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { Store } from '@ngrx/store';
+import { EMPTY, Observable, throwError } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
+// import { AuthActions, AuthService } from '@kirolapp/web-modules/auth';
 
-// export class HttpErrorInterceptor implements HttpInterceptor {
+export class HttpErrorInterceptor implements HttpInterceptor {
 
-//   constructor(private _auth: AuthService, private store: Store) { }
+  constructor( private store: Store) { }
 
 
-//   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-//     return next.handle(request)
-//       .pipe(
-//         catchError((error: HttpErrorResponse) => {
-//           let errorMessage = '';
-//           if (error.error instanceof ErrorEvent) {
-//             errorMessage = `Error: ${error.error.message}`;
-//           }
-//           else{
-//             if (error.status === 401 && ![this._auth.loginUrl, this._auth.refresUrl].includes(error.url)) {
-//               return this._auth.refresh().pipe(
-//                 switchMap(() => next.handle(request)),
-//                 catchError((err) => {
-//                   console.error(err);
-//                   this.store.dispatch(AuthActions.forceLogout());
-//                   return EMPTY;
-//                 })
-//               );
-//             }
-//             errorMessage = `Error Code: ${error.status}\nMessage: ${error.error?.message || error.message}`;
-//           }
-//           console.error(errorMessage);
-//           return throwError(error.error);
-//         })
-//       )
-//   }
-// }
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    return next.handle(request).pipe(
+        catchError((error: HttpErrorResponse) => {
+          let errorMessage = '';
+          console.log(error)
+          // if (error.error instanceof ErrorEvent) {
+          //   errorMessage = `Error: ${error.error.message}`;
+          // }
+          // else{
+          //   //TODO  error.status me llega 0
+          //   // console.log(error.status)
+          //   // console.log(error)
+
+          //   if(error.status === 403){
+          //     // this.store.dispatch(AuthActions.forceLogout());
+          //   }
+
+          //   if(error.status === 401 ) {
+          //     return this._auth.refresh().pipe(
+          //       catchError((err) => {
+          //         console.error(err);
+          //         // this.store.dispatch(AuthActions.forceLogout());
+          //         return EMPTY;
+          //       }),
+          //       switchMap(() => next.handle(request)),
+          //     );
+          //   }
+          //   errorMessage = `Error Code: ${error.status}\nMessage: ${error.error?.message || error.message}`;
+
+          // }
+          return throwError(error.error);
+        })
+      )
+  }
+}

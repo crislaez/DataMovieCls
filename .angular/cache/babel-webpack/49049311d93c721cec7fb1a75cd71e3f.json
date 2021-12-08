@@ -1,0 +1,1 @@
+{"ast":null,"code":"export * as fronMovie from './selectors/movie.selectors';\nexport * as MovieActions from './actions/movie.actions';\nexport * from './models';\nexport * from './services/movie.service';","map":null,"metadata":{},"sourceType":"module"}

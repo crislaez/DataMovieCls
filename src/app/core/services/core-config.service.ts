@@ -1,6 +1,10 @@
 import { Inject, Injectable } from '@angular/core';
 import { ENVIRONMENT, Environment } from '../models/tokens'
 
+export interface CoreConfig {
+  langs: string[];
+}
+
 export enum EndpointType {
   api = '/api/',
 }
@@ -10,7 +14,17 @@ export enum EndpointType {
 })
 export class CoreConfigService {
 
+  protected _config: CoreConfig;
+
+
   constructor(@Inject(ENVIRONMENT) private _env: Environment) { }
+
+
+  importConfig(coreConfigRaw: any): void {
+    this._config = {
+      langs: coreConfigRaw.Languages
+    } as CoreConfig;
+  }
 
 
   getEndpoint(): string {

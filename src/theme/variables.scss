@@ -296,6 +296,10 @@ ion-header{
   }
 }
 
+.back-color {
+  --background: #032541;
+}
+
 //footer barra abajo
 ion-tab-bar{
   background: $backColor;
@@ -320,19 +324,19 @@ ion-menu{
 }
 
 ion-card{
-  width: 43%;
+  width: 40%;
   background: $backColor;
   // --background: rgba(255,255,255,0.1);
 
   //titulo de la card
   ion-card-title{
-    font-size: 20px;
+    font-size: 17px;
     text-align: center;
   }
 
   //contenido de la card
   ion-card-content{
-    font-size: 15px;
+    font-size: 13px;
     text-align: center;
   }
 
@@ -423,7 +427,7 @@ ion-card{
 //PAGE CONTAINER
 .header{
   width: 100%;
-  margin-top: 55px;
+  margin-top: 43px;
   min-height: 130px !important;
   text-align: center;
   border: 0px !important;
@@ -494,8 +498,7 @@ ion-card{
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-between;
-  // align-items: flex-start !important;
-  align-content:flex-start
+  align-content: flex-start
 }
 
 .fade-in-card {

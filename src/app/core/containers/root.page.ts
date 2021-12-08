@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { fronMovie, Menu, MovieActions } from '@clmovies/shareds/movie';
 import { fromTv } from '@clmovies/shareds/tv';
-import { map } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +17,7 @@ import { map } from 'rxjs/operators';
         <ion-button fill="clear" size="small" slot="start"  (click)="open()">
           <ion-menu-button class="text-color"></ion-menu-button>
         </ion-button>
-        <ion-title class="text-color" >Data Movies Cl</ion-title>
+        <ion-title class="text-color" >{{'COMMON.TITLE' | translate }}</ion-title>
         <div size="small" slot="end">
         </div>
       </ion-toolbar>
@@ -27,7 +27,7 @@ import { map } from 'rxjs/operators';
     <ion-menu side="start" menuId="first" contentId="main">
       <ion-header>
         <ion-toolbar >
-          <ion-title class="text-color" >Menu</ion-title>
+          <ion-title class="text-color" >{{'COMMON.MENU' | translate }}</ion-title>
         </ion-toolbar>
       </ion-header>
 
@@ -36,7 +36,7 @@ import { map } from 'rxjs/operators';
           <ion-item class="text-color" *ngFor="let item of menuMovie" [routerLink]="['/genre/'+item?.id]" [queryParams]="{'genre':'movie'}" (click)="deleteMovieByIdGenre()">{{item?.name}} Movie</ion-item>
         </ng-container>
         <ng-template #noMoviesList>
-          <ion-item class="text-color">no data</ion-item>
+          <ion-item class="text-color">{{'COMMON.NORESULT' | translate }}</ion-item>
         </ng-template>
       </ion-content >
 
@@ -45,7 +45,7 @@ import { map } from 'rxjs/operators';
           <ion-item class="text-color" *ngFor="let item of menuTv" [routerLink]="['/genre/'+item?.id]" [queryParams]="{'genre':'tv'}" (click)="deleteMovieByIdGenre()">{{item?.name}} Tv</ion-item>
         </ng-container>
         <ng-template #noTvList>
-          <ion-item class="text-color">no data</ion-item>
+          <ion-item class="text-color">{{'COMMON.NORESULT' | translate }}</ion-item>
         </ng-template>
       </ion-content >
     </ion-menu>
@@ -78,12 +78,15 @@ import { map } from 'rxjs/operators';
 })
 export class RootComponent {
 
-  menuMovie$: Observable<Menu[]> = this.store.pipe(select(fronMovie.getMenu));
-  menuTv$: Observable<Menu[]> = this.store.pipe(select(fromTv.getMenu));
+  menuMovie$: Observable<Menu[]> = this.store.select(fronMovie.getMenu);
+  menuTv$: Observable<Menu[]> = this.store.select(fromTv.getMenu);
 
-  constructor(private menu: MenuController, private router: Router, private store: Store) {
-    // this.menuTv$.subscribe(data => console.log(data))
-  }
+
+  constructor(
+    private menu: MenuController,
+    private router: Router,
+    private store: Store
+  ) { }
 
 
   open() {

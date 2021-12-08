@@ -1,27 +1,31 @@
-import { NgModule } from '@angular/core';
+import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { AppRoutingModule } from './app-routing.module';
-
-import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
-import { RootComponent } from './core';
-import { ENVIRONMENT } from './core/externals';
+import { Store, StoreModule } from '@ngrx/store';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { environment } from '../environments/environment';
+import * as appConfig from './app-config';
+import { AppRoutingModule } from './app-routing.module';
+import { RootComponent } from './core';
+import { extModules } from './core/build-specifics';
 import { CoreModule } from './core/core.module';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { ENVIRONMENT } from './core/externals';
+import { appInitTranslations, createTranslateLoader } from './core/i18n/utils/custom-18n-functions';
+import { DynamicLocaleId } from './core/i18n/utils/dynamic-locale-id.class';
+import { CoreConfigService } from './core/services/core-config.service';
+import { HttpErrorInterceptor } from './core/services/http-error.interceptor';
 
-// import { AuthService } from './core/modules/auth/services/auth.service';
-// import { Store } from '@ngrx/store';
-// import { HTTP_INTERCEPTORS } from '@angular/common/http';
-// import { HttpErrorInterceptor } from './core/services/http-error.interceptor';
+export function appInitializerFactory(translate: TranslateService, coreConfig: CoreConfigService): Function {
+  coreConfig.importConfig(appConfig);
+  return () => appInitTranslations(translate, appConfig.Languages, appConfig.DefaultLang);
+};
 
-// export function appInitializerFactory(translate: TranslateService, coreConfig: CoreConfigService): Function {
-//   coreConfig.importConfig(appConfig);
-//   return () => appInitTranslations(translate, appConfig.Languages, appConfig.DefaultLang);
-// };
+export function localeIdFactory(translate: TranslateService): DynamicLocaleId {
+  return new DynamicLocaleId(translate);
+}
 
 @NgModule({
   entryComponents: [],
@@ -29,6 +33,13 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
     BrowserModule,
     CoreModule,
     IonicModule.forRoot(),
+    TranslateModule.forRoot({
+      loader: {
+          provide: TranslateLoader,
+          useFactory: createTranslateLoader,
+          deps: [HttpClient, ENVIRONMENT]
+        }
+    }),
     StoreModule.forRoot({},
       {
         runtimeChecks: {
@@ -37,8 +48,8 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
         },
       }
     ),
+    extModules,
     EffectsModule.forRoot([]),
-    StoreDevtoolsModule.instrument({maxAge:4}),
     AppRoutingModule,
     HttpClientModule
   ],
@@ -47,22 +58,31 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
       provide: RouteReuseStrategy,
       useClass: IonicRouteStrategy
     },
-    // {
-    //   provide: APP_INITIALIZER,
-    //   useFactory: appInitializerFactory,
-    //   deps: [TranslateService, CoreConfigService],
-    //   multi: true
-    // },
-    // {
-    //   provide: HTTP_INTERCEPTORS,
-    //   useClass: HttpErrorInterceptor,
-    //   deps: [AuthService, Store],
-    //   multi: true
-    // },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: appInitializerFactory,
+      deps: [TranslateService, CoreConfigService],
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpErrorInterceptor,
+      deps: [Store],
+      multi: true
+    },
     {
       provide: ENVIRONMENT,
       useValue: environment
-    }
+    },
+    // {
+    //   provide: LOCALE_ID,
+    //   useClass: DynamicLocaleId,
+    //   deps: [TranslateService]
+    // },
+    // {
+    //   provide: HAMMER_GESTURE_CONFIG,
+    //   useClass: IonicGestureConfig
+    // }
   ],
   bootstrap: [
     RootComponent

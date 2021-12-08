@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Keyboard } from '@capacitor/keyboard';
 import { Movie, MovieService } from '@clmovies/shareds/movie';
 import { Tv, TvService } from '@clmovies/shareds/tv';
-import { IonContent } from '@ionic/angular';
+import { IonContent, Platform } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { catchError, filter, finalize, map, startWith, switchMap, tap } from 'rxjs/operators';
-import { Keyboard } from '@capacitor/keyboard';
-import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-search',
@@ -17,25 +16,25 @@ import { Platform } from '@ionic/angular';
         <!-- HEADER  -->
         <div class="header" no-border>
           <ng-container *ngIf="showMovie === 'movie' ; else tvs">
-            <h1 class="text-second-color">Movies</h1>
+            <h1 class="text-second-color">{{'COMMON.MOVIE' | translate }}</h1>
           </ng-container>
           <ng-template #tvs>
-            <h1 class="text-second-color">Tv</h1>
+            <h1 class="text-second-color">{{'COMMON.TV' | translate }}</h1>
           </ng-template>
 
           <ion-segment (ionChange)="segmentChanged($event)" value="movie">
             <ion-segment-button value="movie">
-              <ion-label>Movie</ion-label>
+              <ion-label>{{'COMMON.MOVIE' | translate }}</ion-label>
             </ion-segment-button>
             <ion-segment-button value="tv">
-              <ion-label>Tv</ion-label>
+              <ion-label>{{'COMMON.TV' | translate }}</ion-label>
             </ion-segment-button>
           </ion-segment>
         </div>
 
         <ng-container *ngIf="showMovie === 'movie' ; else showTv">
           <form class="form" (submit)="searchSubmit($event)" >
-            <ion-searchbar color="light" placeholder="Buscar..." [formControl]="search" (ionClear)="clearSearchMovie($event)"></ion-searchbar>
+            <ion-searchbar color="light" [placeholder]="'COMMON.SEARCH' | translate" [formControl]="search" (ionClear)="clearSearchMovie($event)"></ion-searchbar>
           </form>
 
           <app-search-result class="div-result"
@@ -48,7 +47,7 @@ import { Platform } from '@ionic/angular';
 
         <ng-template #showTv>
           <form class="form" (submit)="searchTvSubmit($event)">
-            <ion-searchbar color="light" placeholder="Buscar..." [formControl]="searchTv" (ionClear)="clearSearchTv($event)"></ion-searchbar>
+            <ion-searchbar color="light" [placeholder]="'COMMON.SEARCH' | translate" [formControl]="searchTv" (ionClear)="clearSearchTv($event)"></ion-searchbar>
           </form>
 
           <app-search-result class="div-result"
@@ -63,6 +62,30 @@ import { Platform } from '@ionic/angular';
         <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
           <ion-refresher-content></ion-refresher-content>
         </ion-refresher>
+
+
+        <!-- IS ERROR -->
+        <ng-template #serverError>
+          <div class="error-serve">
+            <div>
+              <span><ion-icon class="text-second-color big-size" name="cloud-offline-outline"></ion-icon></span>
+              <br>
+              <span class="text-second-color">{{'COMMON.ERROR' | translate }}</span>
+            </div>
+          </div>
+        </ng-template>
+
+        <!-- IS NO DATA  -->
+        <ng-template #noData>
+          <div class="error-serve">
+            <span class="text-second-color">{{'COMMON.NORESULT' | translate }}</span>
+          </div>
+        </ng-template>
+
+        <!-- LOADER  -->
+        <ng-template #loader>
+          <ion-spinner class="loadingspinner"></ion-spinner>
+        </ng-template>
 
       </div>
     </ion-content >
@@ -85,6 +108,9 @@ export class SearchPage  {
     movie: false,
     tv: false
   };
+
+  // status$ = this.store.pipe(select(fronMovie.getStatus));
+  // status$ = this.store.pipe(select(fronMovie.getStatus));
 
   movies$: Observable<Movie[]> = this.searchMovieValue$.pipe(
     startWith(''),
@@ -113,9 +139,11 @@ export class SearchPage  {
   );
 
 
-  constructor( private _movie: MovieService, private _tv: TvService, public platform: Platform) {
-    // this.tvs$.subscribe(data => console.log(data))
-  }
+  constructor(
+    private _movie: MovieService,
+    private _tv: TvService,
+    public platform: Platform
+  ) { }
 
 
    //FORMULARIO MOVIE

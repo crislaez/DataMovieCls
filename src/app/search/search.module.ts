@@ -1,12 +1,13 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
-import { SearchPageRoutingModule } from './search-routing.module';
-import { SearchPage } from './containers/search.page';
-import { SearchResultComponent } from './components/search-result.component';
-import { SharedPageModule } from '@clmovies/shareds/shared/shared.module';
+import { NgModule } from '@angular/core';
 import { MovieModule } from '@clmovies/shareds/movie/movie.module';
+import { SharedPageModule } from '@clmovies/shareds/shared/shared.module';
 import { TvModule } from '@clmovies/shareds/tv/tv.module';
+import { IonicModule } from '@ionic/angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { SearchResultComponent } from './components/search-result.component';
+import { SearchPage } from './containers/search.page';
+import { SearchPageRoutingModule } from './search-routing.module';
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { TvModule } from '@clmovies/shareds/tv/tv.module';
     SharedPageModule,
     MovieModule,
     TvModule,
+    TranslateModule.forChild(),
     SearchPageRoutingModule
   ],
   declarations: [

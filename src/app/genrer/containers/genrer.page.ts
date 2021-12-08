@@ -1,12 +1,12 @@
-import { Component, ChangeDetectionStrategy, EventEmitter, ViewChild, SimpleChanges, OnChanges } from '@angular/core';
-import { fronMovie, Menu, Movie, MovieActions } from '@clmovies/shareds/movie';
+import { ChangeDetectionStrategy, Component, EventEmitter, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { fronMovie, Menu, MovieActions } from '@clmovies/shareds/movie';
+import { emptyObject, errorImage, trackById } from '@clmovies/shareds/shared/utils/utils';
+import { fromTv, TvActions } from '@clmovies/shareds/tv';
+import { IonInfiniteScroll } from '@ionic/angular';
 import { select, Store } from '@ngrx/store';
 import { combineLatest, Observable } from 'rxjs';
 import { map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
-import { trackById, errorImage, emptyObject } from '@clmovies/shareds/shared/utils/utils';
-import { IonInfiniteScroll } from '@ionic/angular';
-import { ActivatedRoute, Router } from '@angular/router';
-import { fromTv, Tv, TvActions } from '@clmovies/shareds/tv';
 
 
 @Component({
@@ -28,28 +28,35 @@ import { fromTv, Tv, TvActions } from '@clmovies/shareds/tv';
         </div>
 
         <ng-container *ngIf="(info$ | async) as info">
-          <ng-container *ngIf="!(pending$ | async) || perPage > 1; else loader">
-            <ng-container *ngIf="info?.data?.length > 0; else noData">
+          <ng-container *ngIf="(status$ | async) as status">
+            <ng-container *ngIf="status !== 'pending' || perPage !== 0; else loader">
+              <ng-container *ngIf="status !== 'error'; else serverError">
 
-              <ion-card class="ion-activatable ripple-parent fade-in-card" [routerLink]="['/'+info?.genre+'/'+item?.id]" *ngFor="let item of info?.data; trackBy: trackById" >
-                <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+item?.poster_path" [alt]="item?.poster_path" (error)="errorImage($event)"/>
-                <ion-card-header>
-                  <ion-card-title class="text-color">{{item?.original_title || item?.original_name}}</ion-card-title>
-                </ion-card-header>
+                <ng-container *ngIf="info?.data?.length > 0; else noData">
 
-                <ion-card-content class="text-color">
-                  Points: {{item?.vote_average}}
-                </ion-card-content>
+                  <ion-card class="ion-activatable ripple-parent fade-in-card" [routerLink]="['/'+info?.genre+'/'+item?.id]" *ngFor="let item of info?.data; trackBy: trackById" >
+                    <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+item?.poster_path" [alt]="item?.poster_path" (error)="errorImage($event)"/>
+                    <ion-card-header>
+                      <ion-card-title class="text-color">{{item?.original_title || item?.original_name}}</ion-card-title>
+                    </ion-card-header>
 
-                <ion-ripple-effect></ion-ripple-effect>
-              </ion-card>
+                    <ion-card-content class="text-color">
+                      {{ 'COMMON.POINTS' | translate }}: {{item?.vote_average}}
+                    </ion-card-content>
 
-              <!-- INFINITE SCROLL  -->
-              <ng-container *ngIf="(total$ | async) as total">
-                <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
-                  <ion-infinite-scroll-content class="loadingspinner">
-                  </ion-infinite-scroll-content>
-                </ion-infinite-scroll>
+                    <ion-ripple-effect></ion-ripple-effect>
+                  </ion-card>
+
+                  <!-- INFINITE SCROLL  -->
+                  <ng-container *ngIf="(total$ | async) as total">
+                    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
+                      <ion-infinite-scroll-content class="loadingspinner">
+                      </ion-infinite-scroll-content>
+                    </ion-infinite-scroll>
+                  </ng-container>
+
+                  </ng-container>
+
               </ng-container>
 
             </ng-container>
@@ -61,10 +68,21 @@ import { fromTv, Tv, TvActions } from '@clmovies/shareds/tv';
           <ion-refresher-content></ion-refresher-content>
         </ion-refresher> -->
 
+        <!-- IS ERROR -->
+        <ng-template #serverError>
+          <div class="error-serve">
+            <div>
+              <span><ion-icon class="text-second-color big-size" name="cloud-offline-outline"></ion-icon></span>
+              <br>
+              <span class="text-second-color">{{'COMMON.ERROR' | translate }}</span>
+            </div>
+          </div>
+        </ng-template>
+
         <!-- IS NO DATA  -->
         <ng-template #noData>
           <div class="error-serve">
-            <span class="text-second-color">No data</span>
+            <span class="text-second-color">{{'COMMON.NORESULT' | translate }}</span>
           </div>
         </ng-template>
 
@@ -92,8 +110,9 @@ export class GenrerPage {
 
   reload$ = new EventEmitter();
   infiniteScroll$ = new EventEmitter();
-  total$: Observable<number>;
-  pending$: Observable<boolean>;
+  total$ = this.store.pipe(select(fronMovie.getTotalPages));
+  status$ = this.store.pipe(select(fronMovie.getStatus));
+
   genre$: Observable<Menu>;
 
   info$: Observable<any> = combineLatest([
@@ -131,16 +150,16 @@ export class GenrerPage {
   );
 
 
-  constructor(private store: Store, private route: ActivatedRoute, private router: Router) {
-    // this.info$.subscribe(data => console.log(data))
-  }
+  constructor(
+    private store: Store,
+    private route: ActivatedRoute
+  ) { }
 
 
   ngOnInit(){
     this.title = this.route.snapshot.queryParams.genre
     if(this.route.snapshot.queryParams.genre === 'movie'){
-      this.total$ = this.store.pipe(select(fronMovie.getTotalPages));
-      this.pending$ = this.store.pipe(select(fronMovie.getPending));
+
       this.genre$ = this.route.params.pipe(
         switchMap(({idGenre}) =>
           this.store.pipe(select(fronMovie.getMenuGenre(idGenre)))
@@ -148,8 +167,6 @@ export class GenrerPage {
       );
 
     }else{
-      this.total$ = this.store.pipe(select(fromTv.getTotalPages));
-      this.pending$ = this.store.pipe(select(fromTv.getPending));
       this.genre$ = this.route.params.pipe(
         switchMap(({idGenre}) =>
           this.store.pipe(select(fromTv.getMenuGenre(idGenre)))

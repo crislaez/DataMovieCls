@@ -1,59 +1,44 @@
 import { createReducer, on  } from '@ngrx/store';
-import { MovieActions } from '../actions';
+import * as MovieActions from '../actions/movie.actions';
 import { Menu, Movie } from '../models';
+import { EntityStatus } from '@clmovies/shareds/shared/utils/utils';
 
-// interface Status {
-//   pending?: boolean;
-//   error?: string;
-// }
+export const movieFeatureKey = 'movie';
 
 export interface State{
   menu?: Menu[];
-  // movie?: Movie;
   movies?: Movie[];
   moviesGenre?: Movie[];
-  pending?: boolean;
+  status: EntityStatus;
   page?: number;
   total_pages?: number;
   total_results?: number;
+  error?: unknown
 }
 
 const initialState: State = {
   menu: [],
   movies: [],
   moviesGenre: [],
-  pending: false,
+  status: EntityStatus.Initial,
   page: 0,
   total_pages: 0,
   total_results: 0,
+  error: undefined
 }
 
-const MovieReducer = createReducer(
+export const reducer = createReducer(
   initialState,
-  on(MovieActions.loadMenu, (state) => ({...state, pending: true})),
-  on(MovieActions.saveMenu, (state, { menu }) => ({...state, menu, pending: false })),
+  on(MovieActions.loadMenu, (state) => ({...state, status: EntityStatus.Pending, error: undefined })),
+  on(MovieActions.saveMenu, (state, { menu, status, error }) => ({...state, menu, status, error })),
 
-  on(MovieActions.loadMovies, (state) => ({...state, pending: true})),
-  on(MovieActions.saveMovies, (state, { movies, page, total_pages, total_results }) => ({...state, movies:[...state?.movies,...movies], page, total_pages, total_results,  pending: false })),
+  on(MovieActions.loadMovies, (state) => ({...state, status: EntityStatus.Pending, error: undefined })),
+  on(MovieActions.saveMovies, (state, { movies, page, total_pages, total_results, status, error }) => ({...state, movies:[...state?.movies,...movies], page, total_pages, total_results, error, status})),
 
-  on(MovieActions.deleteMovies, (state) => ({...state, movies:[], page:1, total_pages:0, total_results:0,  pending: false })),
+  on(MovieActions.loadMoviesGenre, (state) => ({...state, status: EntityStatus.Pending, error: undefined })),
+  on(MovieActions.saveMoviesGenre, (state, { movies, page, total_pages, total_results, status, error }) => ({...state, moviesGenre:[...state?.moviesGenre,...movies], page, total_pages, total_results, error, status })),
 
-  on(MovieActions.loadMoviesGenre, (state) => ({...state, pending: true})),
-  on(MovieActions.saveMoviesGenre, (state, { movies, page, total_pages, total_results }) => ({...state, moviesGenre:[...state?.moviesGenre,...movies], page, total_pages, total_results,  pending: false })),
+  on(MovieActions.deleteMovies, (state) => ({...state, movies:[], page:1, total_pages:0, total_results:0 })),
 
-  on(MovieActions.deleteMovieGenre, (state) => ({...state, moviesGenre:[], page:1}))
+  on(MovieActions.deleteMovieGenre, (state) => ({...state, moviesGenre:[], page:1 }))
 );
-
-export function reducer(state: State | undefined, action: MovieActions.MovieActionsUnion){
-  return MovieReducer(state, action);
-}
-
-
-export const getMenu = (state: State) => state?.menu;
-export const getMovies = (state: State) => state?.movies;
-export const getMoviesGenre = (state: State) => state?.moviesGenre;
-export const getPending = (state: State) => state?.pending;
-export const getPage = (state: State) => state?.page;
-export const getTotalPages = (state: State) => state?.total_pages;
-export const getTotalResult = (state: State) => state?.total_results;
-
