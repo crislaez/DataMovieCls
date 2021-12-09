@@ -15,6 +15,11 @@ export const getMovies = createSelector(
   (state) => state?.movies
 );
 
+export const getMovie = createSelector(
+  selectMovieState,
+  (state) => state?.movie
+);
+
 export const getMoviesGenre = createSelector(
   selectMovieState,
   (state) => state?.moviesGenre

@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { emptyObject, errorImage } from '@clmovies/shareds/shared/utils/utils';
-import { fromTv, Tv, TvService } from '@clmovies/shareds/tv';
+import { fromTv, Tv, TvActions } from '@clmovies/shareds/tv';
 import { select, Store } from '@ngrx/store';
-import { combineLatest, Observable } from 'rxjs';
-import { catchError, filter, map, startWith, switchMap } from 'rxjs/operators';
-
+import { combineLatest, Observable, tap } from 'rxjs';
+import { filter, startWith, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tv.page',
@@ -13,65 +12,77 @@ import { catchError, filter, map, startWith, switchMap } from 'rxjs/operators';
   <ion-content [fullscreen]="true">
     <div class="container components-color">
 
-     <ng-container *ngIf="(tv$ | async) as tv ; else loader">
-      <ng-container *ngIf="emptyObject(tv); else noData">
+      <ng-container *ngIf="(tv$ | async) as tv ; else loader">
+        <ng-container *ngIf="(status$ | async) as status">
+          <ng-container *ngIf="status !== 'pending'; else loader">
+            <ng-container *ngIf="status !== 'error'; else serverError">
 
-          <!-- HEADER  -->
-        <div class="header fade-in-card" no-border>
-          <ion-back-button defaultHref="../" class="text-second-color" [text]="''"></ion-back-button>
-          <h1 class="text-second-color">{{tv?.name}} ({{tv?.first_air_date | date: 'y'}})</h1>
-          <div class="header-container-empty" ></div>
-        </div>
+            <ng-container *ngIf="emptyObject(tv); else noData">
 
-        <ion-card class="width-max fade-in-card" >
-          <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+tv?.poster_path" [alt]="tv?.poster_path" (error)="errorImage($event)"/>
-        </ion-card>
+                <!-- HEADER  -->
+              <div class="header fade-in-card" no-border>
+                <ion-back-button defaultHref="../" class="text-second-color" [text]="''"></ion-back-button>
+                <h1 class="text-second-color">{{tv?.name}} ({{tv?.first_air_date | date: 'y'}})</h1>
+                <div class="header-container-empty" ></div>
+              </div>
 
-        <ion-card class="width-max fade-in-card" >
-          <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+tv?.backdrop_path" [alt]="tv?.poster_path" (error)="errorImage($event)"/>
-        </ion-card>
+              <ion-card class="width-max fade-in-card" >
+                <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+tv?.poster_path" [alt]="tv?.poster_path" (error)="errorImage($event)"/>
+              </ion-card>
 
-        <ion-card class="width-max text-color">
-          <ion-card-content>
+              <ion-card class="width-max fade-in-card" >
+                <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+tv?.backdrop_path" [alt]="tv?.poster_path" (error)="errorImage($event)"/>
+              </ion-card>
 
-            <div class="displays-between width-max">
-              <span class="span-bold">{{'COMMON.GENRES' | translate }}: </span>
-              <span class="width-half">{{getMovieArrayData(tv?.genres)}}</span>
-            </div>
+              <ion-card class="width-max text-color">
+                <ion-card-content>
 
-            <div class="displays-between width-max margin-top">
-              <span class="span-bold">{{'COMMON.PRODUCT_COMPANY' | translate }}: </span>
-              <span class="width-half">{{getMovieArrayData(tv?.production_companies)}}</span>
-            </div>
+                  <div class="displays-between width-max">
+                    <span class="span-bold">{{'COMMON.GENRES' | translate }}: </span>
+                    <span class="width-half">{{getMovieArrayData(tv?.genres)}}</span>
+                  </div>
 
-            <div class="displays-between width-max margin-top">
-              <span class="span-bold">{{'COMMON.NOTE' | translate }}: </span>
-              <span class="width-half">{{tv?.vote_average}}</span>
-            </div>
+                  <div class="displays-between width-max margin-top">
+                    <span class="span-bold">{{'COMMON.PRODUCT_COMPANY' | translate }}: </span>
+                    <span class="width-half">{{getMovieArrayData(tv?.production_companies)}}</span>
+                  </div>
 
-            <div class="displays-between width-max margin-top">
-              <span class="span-bold">{{'COMMON.DATE' | translate }}: </span>
-              <span class="width-half">{{tv?.first_air_date | date: 'MMM d, y'}}</span>
-            </div>
+                  <div class="displays-between width-max margin-top">
+                    <span class="span-bold">{{'COMMON.NOTE' | translate }}: </span>
+                    <span class="width-half">{{tv?.vote_average}}</span>
+                  </div>
 
-            <div *ngIf="tv?.homepage" class="displays-between width-max margin-top">
-              <span class="span-bold">{{'COMMON.SHOW_IN_WEB' | translate }}: </span>
-              <a class="width-half" [href]="tv?.homepage">{{'COMMON.HERE' | translate }}</a>
-            </div>
+                  <div class="displays-between width-max margin-top">
+                    <span class="span-bold">{{'COMMON.DATE' | translate }}: </span>
+                    <span class="width-half">{{tv?.first_air_date | date: 'MMM d, y'}}</span>
+                  </div>
 
-            <div class="displays-center width-max margin-top">
-              <span class="span-bold width-max">{{'COMMON.DESCRIPTION' | translate }}</span>
-              <span>{{tv?.overview}}</span>
-            </div>
+                  <div *ngIf="tv?.homepage" class="displays-between width-max margin-top">
+                    <span class="span-bold">{{'COMMON.SHOW_IN_WEB' | translate }}: </span>
+                    <a class="width-half" [href]="tv?.homepage">{{'COMMON.HERE' | translate }}</a>
+                  </div>
 
-          </ion-card-content>
-        </ion-card>
+                  <div class="displays-center width-max margin-top">
+                    <span class="span-bold width-max">{{'COMMON.DESCRIPTION' | translate }}</span>
+                    <span>{{tv?.overview}}</span>
+                  </div>
+
+                </ion-card-content>
+              </ion-card>
+            </ng-container>
+
+          </ng-container>
+        </ng-container>
       </ng-container>
      </ng-container>
 
-
       <!-- IS ERROR -->
       <ng-template #serverError>
+        <div class="header" no-border>
+          <ion-back-button defaultHref="/tv" class="text-second-color" [text]="''"></ion-back-button>
+          <div class="header-container-empty"></div>
+        </div>
+
         <div class="error-serve">
           <div>
             <span><ion-icon class="text-second-color big-size" name="cloud-offline-outline"></ion-icon></span>
@@ -88,8 +99,13 @@ import { catchError, filter, map, startWith, switchMap } from 'rxjs/operators';
 
       <!-- IS NO DATA  -->
       <ng-template #noData>
+        <div class="header" no-border>
+          <ion-back-button defaultHref="/tv" class="text-second-color" [text]="''"></ion-back-button>
+          <!-- <h1 class="text-second-color">{{ card?.name }}</h1> -->
+          <div class="header-container-empty"></div>
+        </div>
         <div class="error-serve">
-          <span class="text-second-color">No data</span>
+          <span class="text-second-color">{{ 'COMMON.NORESULT' | translate }}</span>
         </div>
       </ng-template>
 
@@ -117,25 +133,24 @@ export class TvPage {
     this.reload$.pipe(startWith(''))
   ]).pipe(
     filter(([{idTv}, ]) => !!idTv),
-    switchMap(([{idTv}, ]) =>
-      this._tv.getTv(idTv).pipe(
-        map((tv) => (tv)),
-        catchError(() => [{}])
-      )
+    tap(([{idTv:idSerie}, ]) =>
+      this.store.dispatch(TvActions.loadTvSerie({idSerie}))
+    ),
+    switchMap(() =>
+      this.store.select(fromTv.getTvSerie)
     )
   );
 
 
   constructor(
     private store: Store,
-    private route: ActivatedRoute,
-    private _tv: TvService
+    private route: ActivatedRoute
   ) { }
 
 
-   getMovieArrayData(movieArrayData: any): string{
-     return movieArrayData.map(({name}) => (name)).join(', ');
-   }
+  getMovieArrayData(movieArrayData: any): string{
+    return movieArrayData.map(({name}) => (name)).join(', ');
+  }
 
   doRefresh(event) {
     setTimeout(() => {
@@ -143,7 +158,6 @@ export class TvPage {
       event.target.complete();
     }, 500);
   }
-
 
 
 }

@@ -1,0 +1,1 @@
+{"ast":null,"code":"import { createAction, props } from '@ngrx/store';\nexport const loadGenre = createAction('[Genre] Load Genre', props());\nexport const saveGenre = createAction('[Genre] Save Genre', props());\nexport const deleteGenre = createAction('[Genre] Delete Genre');","map":null,"metadata":{},"sourceType":"module"}

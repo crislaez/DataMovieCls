@@ -40,24 +40,39 @@ export class TvEffects {
     )
   );
 
-  loadTvsGenre$ = createEffect( () =>
+  loadTvSerie$ = createEffect( () =>
     this.actions$.pipe(
-      ofType(TvActions.loadTvsGenre),
-      switchMap( ({page, idGenre}) =>
-        this._tv.getTvsByIdGenre(page, idGenre).pipe(
-          map( ({tvs, page, total_pages, total_results}) => TvActions.saveTvsGenre({ tvs, page, total_pages, total_results, status: EntityStatus.Loaded, error: undefined })),
+      ofType(TvActions.loadTvSerie),
+      switchMap( ({ idSerie }) =>
+        this._tv.getTvSerie(idSerie).pipe(
+          map( (serie) => TvActions.saveTvsSerie({ serie, status: EntityStatus.Loaded, error: undefined })),
           catchError( (error) => of(
-            TvActions.saveTvsGenre({ tvs: [], page: 1, total_pages: 0 , total_results:0, status: EntityStatus.Error, error }),
-            NotificationActions.notificationFailure({message: 'ERRORS.ERROR_LOAD_TV_GENRE'})
+            TvActions.saveTvsSerie({ serie: {}, status: EntityStatus.Error, error }),
+            NotificationActions.notificationFailure({message: 'ERRORS.ERROR_LOAD_TV'})
           ))
         )
       )
     )
   );
 
+  // loadTvsGenre$ = createEffect( () =>
+  //   this.actions$.pipe(
+  //     ofType(TvActions.loadTvsGenre),
+  //     switchMap( ({page, idGenre}) =>
+  //       this._tv.getTvsByIdGenre(page, idGenre).pipe(
+  //         map( ({tvs, page, total_pages, total_results}) => TvActions.saveTvsGenre({ tvs, page, total_pages, total_results, status: EntityStatus.Loaded, error: undefined })),
+  //         catchError( (error) => of(
+  //           TvActions.saveTvsGenre({ tvs: [], page: 1, total_pages: 0 , total_results:0, status: EntityStatus.Error, error }),
+  //           NotificationActions.notificationFailure({message: 'ERRORS.ERROR_LOAD_TV_GENRE'})
+  //         ))
+  //       )
+  //     )
+  //   )
+  // );
+
 
   loadTvInit$ = createEffect(() =>
-    of(TvActions.loadTvs({page:'1', typeTv:'popular'}), TvActions.loadMenuTv())
+    of(TvActions.loadMenuTv())
   );
 
 

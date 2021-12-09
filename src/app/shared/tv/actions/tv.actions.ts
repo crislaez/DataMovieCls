@@ -25,6 +25,17 @@ export const saveTvs = createAction(
 );
 
 
+export const loadTvSerie = createAction(
+  '[Tv] Load tv serie',
+  props<{idSerie?: string, page?:string}>()
+);
+
+export const saveTvsSerie = createAction(
+  '[Tv] Save tv serie',
+  props<{serie:Tv, status: EntityStatus, error:unknown }>()
+);
+
+
 export const loadTvsGenre = createAction(
   '[Tv] Load Tvs genre',
   props<{page?:string, idGenre: string}>()

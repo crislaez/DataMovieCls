@@ -15,6 +15,11 @@ export const getTvs = createSelector(
   (state) => state?.tvs
 );
 
+export const getTvSerie = createSelector(
+  selectTvState,
+  (state) => state?.serie
+);
+
 export const getTvsGenre = createSelector(
   selectTvState,
   (state) => state?.tvsGenre

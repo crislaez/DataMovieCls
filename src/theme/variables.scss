@@ -357,13 +357,17 @@ ion-card{
 //ERROR
 .error-serve{
   width: 100%;
-  height: 500px;
-  display: block;
+  height: 70vh;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-around;
-  align-content: center;
+  justify-content: center;
+  align-items: center;
+
+  div{
+    width: 80%;
+    text-align: center;
+  }
 }
 
 //COLOR LOADER

@@ -23,7 +23,7 @@ export class TvService {
     return this.http.get<Menu[]>(`${this.baseURL}genre/tv/list?api_key=${this.apiKey}`).pipe(
       map( ({genres}: any) => (genres || [])),
       catchError((error) => {
-        return throwError(error)
+        return throwError(() => error)
       })
     )
   };
@@ -32,17 +32,17 @@ export class TvService {
     return this.http.get<any>(`${this.baseURL}tv/${typeMovie}?api_key=${this.apiKey}&page=${page}`).pipe(
       map( ({page, results, total_pages, total_results }) => ({tvs: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
       catchError((error) => {
-        return throwError(error)
+        return throwError(() => error)
       })
     )
   };
 
-  getTv(idTv: string): Observable<Tv>{
-    if(!idTv) return null
+  getTvSerie(idTv: string): Observable<Tv>{
+    if(!idTv) return of({})
     return this.http.get<Tv>(`${this.baseURL}tv/${idTv}?api_key=${this.apiKey}`).pipe(
       map( (data) => (data || {})),
       catchError((error) => {
-        return throwError(error)
+        return throwError(() => error)
       })
     )
   };
@@ -51,22 +51,19 @@ export class TvService {
     return this.http.get<any>(`${this.baseURL}search/tv?api_key=${this.apiKey}&query=${searchName}`).pipe(
       map( ({page, results, total_pages, total_results }) => ({tvs: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
       catchError((error) => {
-        return throwError(error)
+        return throwError(() => error)
       })
     )
   };
 
-  getTvsByIdGenre(page:string = '1', genre:string = '12'): Observable<any>{
-    // https://api.themoviedb.org/3/genre/16/movies?api_key=57e601c11dedd919bcbf7576f76caa11&page=1
-    // https://api.themoviedb.org/3/genre/9648/tv?api_key=57e601c11dedd919bcbf7576f76caa11&page=1
-    // (`${this.baseURL}genre/${genre}/tv?api_key=${this.apiKey}&page=${page}`)
-    return this.http.get<any>(`${this.baseURL}discover/tv?api_key=${this.apiKey}&with_genres=${genre}&page=${page}`).pipe(
-      map( ({page, results, total_pages, total_results }) => ({tvs: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
-      catchError((error) => {
-        return throwError(error)
-      })
-    )
-  };
+  // getTvsByIdGenre(page:string = '1', genre:string = '12'): Observable<any>{
+  //   return this.http.get<any>(`${this.baseURL}discover/tv?api_key=${this.apiKey}&with_genres=${genre}&page=${page}`).pipe(
+  //     map( ({page, results, total_pages, total_results }) => ({tvs: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
+  //     catchError((error) => {
+  //       return throwError(() => error)
+  //     })
+  //   )
+  // };
 
 
 }

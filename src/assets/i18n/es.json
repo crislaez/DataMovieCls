@@ -25,9 +25,12 @@
   },
   "ERRORS":{
     "ERROR_LOAD_MOVIES":"error loading movies",
-    "ERROR_LOAD_TVS":"error loading tvs",
+    "ERROR_LOAD_MOVIE":"error loading movie",
+    "ERROR_LOAD_TVS":"error loading tvs series",
+    "ERROR_LOAD_TV":"error loading tv serie",
     "ERROR_LOAD_TV_MENU":"error loading tv menu",
     "ERROR_LOAD_TV_GENRE":"error loading tv genre",
+    "ERROR_LOAD_INFO":"error loading info",
     "ERROR_LOAD_MOVIE_MENU":"error loading movie menu",
     "ERROR_LOAD_MOVIE_GENRE":"error loading movie genre"
   }

@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { RootComponent } from './containers/root.page';
 
+
 @NgModule({
   imports: [
     CommonModule,

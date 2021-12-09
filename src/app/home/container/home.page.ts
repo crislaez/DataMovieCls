@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, ViewChild } from '@angular/core';
-import { fronMovie, MovieActions } from '@clmovies/shareds/movie';
+import { fromMovie, MovieActions } from '@clmovies/shareds/movie';
 import { errorImage, gotToTop, trackById } from '@clmovies/shareds/shared/utils/utils';
 import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 import { select, Store } from '@ngrx/store';
@@ -13,7 +13,7 @@ import { startWith, switchMap, tap } from 'rxjs/operators';
 
         <div class="div-header-fixed header">
           <!-- HEADER  -->
-          <div class="div-center" no-border>
+          <div class="div-center margin-top" no-border>
             <h1 class="text-second-color">{{'COMMON.MOVIES' | translate }}</h1>
           </div>
 
@@ -33,7 +33,6 @@ import { startWith, switchMap, tap } from 'rxjs/operators';
 
         <div class="header">
         </div>
-
 
         <ng-container *ngIf="(movies$ | async) as movies">
           <ng-container *ngIf="(status$ | async) as status">
@@ -124,16 +123,16 @@ export class HomePage  {
     typeMovie: 'popular',
   };
 
-  total$ = this.store.pipe(select(fronMovie.getTotalPages))
-  status$ = this.store.pipe(select(fronMovie.getStatus))
+  total$ = this.store.pipe(select(fromMovie.getTotalPages));
+  status$ = this.store.pipe(select(fromMovie.getStatus));
 
   movies$ = this.infiniteScroll$.pipe(
     startWith(this.statusComponent),
     tap(({perPage:page, typeMovie}) =>
-      this.store.dispatch(MovieActions.loadMovies({typeMovie, page: page.toString()}))
+      this.store.dispatch(MovieActions.loadMovies({typeMovie, page: page?.toString()}))
     ),
     switchMap(() =>
-      this.store.pipe(select(fronMovie.getMovies))
+      this.store.pipe(select(fromMovie.getMovies))
     )
   );
 
@@ -143,13 +142,9 @@ export class HomePage  {
   ) { }
 
 
-  scrollToTop() {
-    this.content.scrollToTop();
-  }
-
   segmentChanged(event): void{
     this.store.dispatch(MovieActions.deleteMovies());
-    this.scrollToTop();
+    this.content.scrollToTop();
     this.statusComponent = {...this.statusComponent, perPage: 1, typeMovie: event?.detail?.value };
     this.infiniteScroll$.next(this.statusComponent)
   }
@@ -159,6 +154,7 @@ export class HomePage  {
     setTimeout(() => {
       this.statusComponent = { ...this.statusComponent, perPage: 1 };
       this.infiniteScroll$.next(this.statusComponent);
+      if(this.ionInfiniteScroll) this.ionInfiniteScroll.disabled = false;
       event.target.complete();
     }, 500);
   }

@@ -24,6 +24,17 @@ export const saveMovies = createAction(
 );
 
 
+export const loadMovie = createAction(
+  '[Movie] Load movie',
+  props<{idMovie: string}>()
+);
+
+export const saveMovie = createAction(
+  '[Movie] Save movie',
+  props<{movie:Movie, status: EntityStatus, error:unknown }>()
+);
+
+
 export const loadMoviesGenre = createAction(
   '[Movie] Load movies genre',
   props<{page?:string, idGenre: string}>()

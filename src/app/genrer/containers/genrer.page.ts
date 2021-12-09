@@ -1,18 +1,19 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { fronMovie, Menu, MovieActions } from '@clmovies/shareds/movie';
-import { emptyObject, errorImage, trackById } from '@clmovies/shareds/shared/utils/utils';
-import { fromTv, TvActions } from '@clmovies/shareds/tv';
-import { IonInfiniteScroll } from '@ionic/angular';
+import { fromGenre, GenreActions } from '@clmovies/shareds/genre';
+import { fromMovie, Menu } from '@clmovies/shareds/movie';
+import { emptyObject, errorImage, gotToTop, trackById } from '@clmovies/shareds/shared/utils/utils';
+import { fromTv } from '@clmovies/shareds/tv';
+import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 import { select, Store } from '@ngrx/store';
 import { combineLatest, Observable } from 'rxjs';
-import { map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
+import { map, startWith, switchMap, tap } from 'rxjs/operators';
 
 
 @Component({
   selector: 'app-genrer',
   template:`
-    <ion-content [fullscreen]="true">
+    <ion-content [fullscreen]="true" [scrollEvents]="true" (ionScroll)="logScrolling($any($event))">
       <div class="container components-color">
 
         <!-- HEADER  -->
@@ -29,7 +30,7 @@ import { map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 
         <ng-container *ngIf="(info$ | async) as info">
           <ng-container *ngIf="(status$ | async) as status">
-            <ng-container *ngIf="status !== 'pending' || perPage !== 0; else loader">
+            <ng-container *ngIf="status !== 'pending' || statusComponent?.perPage !== 1; else loader">
               <ng-container *ngIf="status !== 'error'; else serverError">
 
                 <ng-container *ngIf="info?.data?.length > 0; else noData">
@@ -51,6 +52,7 @@ import { map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
                   <ng-container *ngIf="(total$ | async) as total">
                     <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
                       <ion-infinite-scroll-content class="loadingspinner">
+                        <ion-spinner *ngIf="status === 'pending'" class="loadingspinner"></ion-spinner>
                       </ion-infinite-scroll-content>
                     </ion-infinite-scroll>
                   </ng-container>
@@ -64,9 +66,9 @@ import { map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
         </ng-container>
 
          <!-- REFRESH -->
-        <!-- <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+        <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
           <ion-refresher-content></ion-refresher-content>
-        </ion-refresher> -->
+        </ion-refresher>
 
         <!-- IS ERROR -->
         <ng-template #serverError>
@@ -92,6 +94,11 @@ import { map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
         </ng-template>
 
       </div>
+
+      <!-- TO TOP BUTTON  -->
+      <ion-fab *ngIf="showButton" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button class="back-color" (click)="gotToTop(content)"> <ion-icon name="arrow-up-circle-outline"></ion-icon></ion-fab-button>
+      </ion-fab>
     </ion-content >
   `,
   styleUrls: ['./genrer.page.scss'],
@@ -99,54 +106,42 @@ import { map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 })
 export class GenrerPage {
 
-
-  @ViewChild(IonInfiniteScroll) ionInfiniteScroll: IonInfiniteScroll;
+  gotToTop = gotToTop;
   trackById = trackById;
   errorImage = errorImage;
   emptyObject = emptyObject;
+  @ViewChild(IonInfiniteScroll) ionInfiniteScroll: IonInfiniteScroll;
+  @ViewChild(IonContent, {static: true}) content: IonContent;
 
   title: string = '';
-  perPage: number = 1;
+  showButton: boolean = false;
 
-  reload$ = new EventEmitter();
-  infiniteScroll$ = new EventEmitter();
-  total$ = this.store.pipe(select(fronMovie.getTotalPages));
-  status$ = this.store.pipe(select(fronMovie.getStatus));
+  infiniteScroll$ = new EventEmitter<{ perPage?:number }>();
+  total$ = this.store.pipe(select(fromGenre.getTotalPages));
+  status$ = this.store.pipe(select(fromGenre.getStatus));
 
   genre$: Observable<Menu>;
 
+  statusComponent: { perPage?:number } = {
+    perPage: 1
+  };
+
+
   info$: Observable<any> = combineLatest([
-    this.reload$.pipe(startWith('')),
     this.route.params,
     this.route.queryParams,
-    this.infiniteScroll$.pipe(startWith(1)),
+    this.infiniteScroll$.pipe(startWith(this.statusComponent)),
   ]).pipe(
-    tap(([,{idGenre}, {genre}, page]) => {
-      if(this.perPage === 1){
-        if(genre === 'movie') this.store.dispatch(MovieActions.deleteMovieGenre());
-        else this.store.dispatch(TvActions.deleteTvsGenre())
-      }
+    tap(data => console.log(data)),
+    tap(([{idGenre}, {genre}, {perPage:page}]) => {
+      this.store.dispatch(GenreActions.loadGenre({page: page?.toString(), idGenre, genre}))
     }),
-    tap(([,{idGenre}, {genre}, page]) => {
-      if(genre === 'movie') this.store.dispatch(MovieActions.loadMoviesGenre({page: page.toString(), idGenre}));
-      else{
-        console.log(page.toString())
-        console.log(idGenre)
-        this.store.dispatch(TvActions.loadTvsGenre({page: page.toString(), idGenre}))
-      }
-    }),
-    switchMap(([,{idGenre}, {genre}, page]) => {
-      if(genre === 'movie'){
-        return this.store.pipe(select(fronMovie.getMoviesGenre),
-          map(movies => ({data:movies, genre}))
-        )
-      }else{
-        return this.store.pipe(select(fromTv.getTvsGenre),
-          map(tvs => ({data:tvs, genre}))
-        )
-      }
-    }),
-    shareReplay(1)
+    switchMap(([_, {genre}]) =>
+      this.store.select(fromGenre.getGenres).pipe(
+        map(data => ({data, genre}))
+      )
+    )
+    ,tap(res => console.log(res))
   );
 
 
@@ -157,44 +152,44 @@ export class GenrerPage {
 
 
   ngOnInit(){
-    this.title = this.route.snapshot.queryParams.genre
-    if(this.route.snapshot.queryParams.genre === 'movie'){
+    this.title = this.route.snapshot?.queryParams?.genre;
 
-      this.genre$ = this.route.params.pipe(
-        switchMap(({idGenre}) =>
-          this.store.pipe(select(fronMovie.getMenuGenre(idGenre)))
-        )
-      );
-
-    }else{
-      this.genre$ = this.route.params.pipe(
-        switchMap(({idGenre}) =>
-          this.store.pipe(select(fromTv.getMenuGenre(idGenre)))
-        )
-      );
-    }
+    this.genre$ = this.route.params.pipe(
+      switchMap(({idGenre}) => {
+        if(this.title  === 'movie') return this.store.pipe(select(fromMovie.getMenuGenre(idGenre)));
+        return  this.store.pipe(select(fromTv.getMenuGenre(idGenre)))
+      })
+    );
   }
 
-
-  // doRefresh(event) {
-  //   setTimeout(() => {
-  //     this.store.dispatch(MovieActions.deleteMovieGenre());
-  //     this.store.dispatch(TvActions.deleteTvsGenre())
-  //     this.reload$.next('')
-  //     event.target.complete();
-  //   }, 500);
-  // }
-
-  loadData(event, total) {
+  doRefresh(event) {
     setTimeout(() => {
-      this.perPage = this.perPage + 1;
-      if(this.perPage >= total){
-        this.ionInfiniteScroll.disabled = true
-        return
-      }
-      this.infiniteScroll$.next(this.perPage)
+      this.statusComponent = { ...this.statusComponent, perPage: 1 };
+      this.infiniteScroll$.next(this.statusComponent);
+      if(this.ionInfiniteScroll) this.ionInfiniteScroll.disabled = false;
+
       event.target.complete();
     }, 500);
+  }
+
+  // INIFINITE SCROLL
+  loadData(event, total) {
+    setTimeout(() => {
+      this.statusComponent = {...this.statusComponent, perPage: this.statusComponent?.perPage + 1};
+
+      if(this.statusComponent?.perPage > total){
+        if(this.ionInfiniteScroll) this.ionInfiniteScroll.disabled = true
+      }
+
+      this.infiniteScroll$.next(this.statusComponent);
+      event.target.complete();
+    }, 500);
+  }
+
+  // SCROLL EVENT
+  logScrolling({detail:{scrollTop}}): void{
+    if(scrollTop >= 300) this.showButton = true
+    else this.showButton = false
   }
 
 

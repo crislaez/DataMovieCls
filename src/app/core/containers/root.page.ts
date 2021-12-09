@@ -3,7 +3,7 @@ import { MenuController } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
-import { fronMovie, Menu, MovieActions } from '@clmovies/shareds/movie';
+import { fromMovie, Menu, MovieActions } from '@clmovies/shareds/movie';
 import { fromTv } from '@clmovies/shareds/tv';
 import { tap } from 'rxjs/operators';
 
@@ -78,7 +78,7 @@ import { tap } from 'rxjs/operators';
 })
 export class RootComponent {
 
-  menuMovie$: Observable<Menu[]> = this.store.select(fronMovie.getMenu);
+  menuMovie$: Observable<Menu[]> = this.store.select(fromMovie.getMenu);
   menuTv$: Observable<Menu[]> = this.store.select(fromTv.getMenu);
 
 

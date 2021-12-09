@@ -22,7 +22,7 @@ export class MovieService {
     return this.http.get<Menu[]>(`${this.baseURL}genre/movie/list?api_key=${this.apiKey}`).pipe(
       map( ({genres}: any) => (genres || [])),
       catchError((error) => {
-        return throwError(error)
+        return throwError(() => error)
       })
     )
   };
@@ -32,7 +32,7 @@ export class MovieService {
     return this.http.get<Movie>(`${this.baseURL}movie/${idMovie}?api_key=${this.apiKey}`).pipe(
       map( (data) => (data || {})),
       catchError((error) => {
-        return throwError(error)
+        return throwError(() => error)
       })
     )
   };
@@ -41,25 +41,25 @@ export class MovieService {
     return this.http.get<any>(`${this.baseURL}movie/${typeMovie}?api_key=${this.apiKey}&page=${page}`).pipe(
       map( ({page, results, total_pages, total_results }) => ({movies: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
       catchError((error) => {
-        return throwError(error)
+        return throwError(() => error)
       })
     )
   };
 
-  getMoviesByIdGenre(page:string = '1', genre:string = '12'): Observable<any>{
-    return this.http.get<any>(`${this.baseURL}genre/${genre}/movies?api_key=${this.apiKey}&page=${page}`).pipe(
-      map( ({page, results, total_pages, total_results }) => ({movies: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
-      catchError((error) => {
-        return throwError(error)
-      })
-    )
-  };
+  // getMoviesByIdGenre(page:string = '1', genre:string = '12'): Observable<any>{
+  //   return this.http.get<any>(`${this.baseURL}genre/${genre}/movies?api_key=${this.apiKey}&page=${page}`).pipe(
+  //     map( ({page, results, total_pages, total_results }) => ({movies: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
+  //     catchError((error) => {
+  //       return throwError(() => error)
+  //     })
+  //   )
+  // };
 
   getMoviesSearch(searchName: string): Observable<any>{
     return this.http.get<any>(`${this.baseURL}search/movie?api_key=${this.apiKey}&query=${searchName}`).pipe(
       map( ({page, results, total_pages, total_results }) => ({movies: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
       catchError((error) => {
-        return throwError(error)
+        return throwError(() => error)
       })
     )
   };

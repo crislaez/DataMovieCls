@@ -1,21 +1,20 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, ViewChild } from '@angular/core';
-import { errorImage, trackById } from '@clmovies/shareds/shared/utils/utils';
-import { fromTv, Tv, TvActions } from '@clmovies/shareds/tv';
+import { errorImage, gotToTop, trackById } from '@clmovies/shareds/shared/utils/utils';
+import { fromTv, TvActions } from '@clmovies/shareds/tv';
 import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 import { select, Store } from '@ngrx/store';
-import { combineLatest, Observable } from 'rxjs';
 import { startWith, switchMap, tap } from 'rxjs/operators';
 
 
 @Component({
   selector: 'app-tvs',
   template: `
-  <ion-content [fullscreen]="true">
+  <ion-content [fullscreen]="true" [scrollEvents]="true" (ionScroll)="logScrolling($any($event))">
     <div class="container components-color">
 
       <div class="div-header-fixed header">
         <!-- HEADER  -->
-        <div class="div-center" no-border>
+        <div class="div-center margin-top" no-border>
           <h1 class="text-second-color">{{'COMMON.TVS' | translate }}</h1>
         </div>
 
@@ -33,39 +32,41 @@ import { startWith, switchMap, tap } from 'rxjs/operators';
         </ion-segment>
       </div>
 
-      <div class="div-container">
-        <ng-container *ngIf="(tvs$ | async) as tvs;">
-          <ng-container *ngIf="(status$ | async) as status">
-            <ng-container *ngIf="status !== 'pending' || perPage > 1; else loader">
-              <ng-container *ngIf="status !== 'error'; else serverError">
+      <div class="header">
+      </div>
 
-                <ng-container *ngIf="tvs?.length > 0; else noData">
-                  <ion-card class="ion-activatable ripple-parent fade-in-card" [routerLink]="['/tv/'+tv?.id]" *ngFor="let tv of tvs; trackBy: trackById" >
-                    <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+tv?.poster_path" [alt]="tv?.poster_path" (error)="errorImage($event)"/>
+      <ng-container *ngIf="(tvs$ | async) as tvs;">
+        <ng-container *ngIf="(status$ | async) as status">
+          <ng-container *ngIf="status !== 'pending' || statusComponent?.perPage !== 1; else loader">
+            <ng-container *ngIf="status !== 'error'; else serverError">
 
-                    <ion-card-header>
-                      <ion-card-title class="text-color">{{tv?.name}}</ion-card-title>
-                    </ion-card-header>
-                    <ion-card-content class="text-color">
-                    {{'COMMON.POINTS' | translate }}: {{tv?.vote_average}}
-                    </ion-card-content>
-                    <ion-ripple-effect></ion-ripple-effect>
-                  </ion-card>
+              <ng-container *ngIf="tvs?.length > 0; else noData">
+                <ion-card class="ion-activatable ripple-parent fade-in-card" [routerLink]="['/tv/'+tv?.id]" *ngFor="let tv of tvs; trackBy: trackById" >
+                  <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+tv?.poster_path" [alt]="tv?.poster_path" (error)="errorImage($event)"/>
 
-                  <ng-container *ngIf="(total$ | async) as total">
-                    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
-                      <ion-infinite-scroll-content class="loadingspinner">
-                      </ion-infinite-scroll-content>
-                    </ion-infinite-scroll>
-                  </ng-container>
+                  <ion-card-header>
+                    <ion-card-title class="text-color">{{tv?.name}}</ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content class="text-color">
+                  {{'COMMON.POINTS' | translate }}: {{tv?.vote_average}}
+                  </ion-card-content>
+                  <ion-ripple-effect></ion-ripple-effect>
+                </ion-card>
 
+                <ng-container *ngIf="(total$ | async) as total">
+                  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
+                    <ion-infinite-scroll-content class="loadingspinner">
+                      <ion-spinner *ngIf="status === 'pending'" class="loadingspinner"></ion-spinner>
+                    </ion-infinite-scroll-content>
+                  </ion-infinite-scroll>
                 </ng-container>
 
               </ng-container>
+
             </ng-container>
           </ng-container>
         </ng-container>
-      </div>
+      </ng-container>
 
 
        <!-- REFRESH -->
@@ -97,6 +98,11 @@ import { startWith, switchMap, tap } from 'rxjs/operators';
       </ng-template>
 
     </div>
+
+      <!-- TO TOP BUTTON  -->
+      <ion-fab *ngIf="showButton" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button class="back-color" (click)="gotToTop(content)"> <ion-icon name="arrow-up-circle-outline"></ion-icon></ion-fab-button>
+      </ion-fab>
   </ion-content >
   `,
   styleUrls: ['./tvs.page.scss'],
@@ -104,62 +110,73 @@ import { startWith, switchMap, tap } from 'rxjs/operators';
 })
 export class TvsPage {
 
+  gotToTop = gotToTop;
   trackById = trackById;
   errorImage = errorImage;
   @ViewChild(IonInfiniteScroll) ionInfiniteScroll: IonInfiniteScroll;
   @ViewChild(IonContent, {static: true}) content: IonContent;
 
-  perPage = 1;
-  reload$ = new EventEmitter();
-  infiniteScroll$ = new EventEmitter();
-  typeMovie$ = new EventEmitter()
+  showButton: boolean = false;
+  infiniteScroll$ = new EventEmitter<{perPage?:number, typeTv?:string}>();
+  statusComponent: { perPage?:number, typeTv?:string } = {
+    perPage: 1,
+    typeTv: 'popular',
+  };
+
   total$ = this.store.pipe(select(fromTv.getTotalPages))
   status$ = this.store.pipe(select(fromTv.getStatus))
 
-  tvs$: Observable<Tv[]> = combineLatest([
-    this.reload$.pipe(startWith('')),
-    this.typeMovie$.pipe(startWith('popular')),
-    this.infiniteScroll$.pipe(startWith(1)),
-  ]).pipe(
-    tap(([, typeTv ,page]) =>  this.store.dispatch(TvActions.loadTvs({typeTv, page: page.toString()}))),
-    switchMap(() => this.store.pipe(select(fromTv.getTvs)))
+  tvs$ = this.infiniteScroll$.pipe(
+    startWith(this.statusComponent),
+    tap(({perPage:page, typeTv}) =>
+      this.store.dispatch(TvActions.loadTvs({typeTv, page: page.toString()}))
+    ),
+    switchMap(() =>
+      this.store.pipe(select(fromTv.getTvs))
+    )
+    // ,tap(res => console.log(res))
   );
 
 
-  constructor(private store: Store) {
-    // this.tvs$.subscribe(data => console.log(data))
-   }
 
+  constructor(
+    private store: Store
+  ) { }
 
-  scrollToTop() {
-    this.content.scrollToTop();
-  }
 
   segmentChanged(event): void{
     this.store.dispatch(TvActions.deleteTvs())
-    this.scrollToTop()
-    this.typeMovie$.next(event?.detail?.value)
-    this.perPage = 1
-    this.infiniteScroll$.next(1)
+    this.content.scrollToTop();
+    this.statusComponent = {...this.statusComponent, perPage: 1, typeTv: event?.detail?.value };
+    this.infiniteScroll$.next(this.statusComponent)
   }
 
   doRefresh(event) {
     setTimeout(() => {
-      this.reload$.next('')
+      this.statusComponent = { ...this.statusComponent, perPage: 1 };
+      this.infiniteScroll$.next(this.statusComponent);
+      if(this.ionInfiniteScroll) this.ionInfiniteScroll.disabled = false;
       event.target.complete();
     }, 500);
   }
 
   loadData(event, total) {
     setTimeout(() => {
-      this.perPage = this.perPage + 1;
-      if(this.perPage > total){
-        this.ionInfiniteScroll.disabled = true
-        return
+      this.statusComponent = {...this.statusComponent, perPage: this.statusComponent?.perPage + 1};
+
+      if(this.statusComponent?.perPage > total){
+        if(this.ionInfiniteScroll) this.ionInfiniteScroll.disabled = true
       }
-      this.infiniteScroll$.next(this.perPage)
+
+      this.infiniteScroll$.next(this.statusComponent);
       event.target.complete();
     }, 500);
+  }
+
+  // SCROLL EVENT
+  logScrolling({detail:{scrollTop}}): void{
+    if(scrollTop >= 300) this.showButton = true
+    else this.showButton = false
   }
 
 
