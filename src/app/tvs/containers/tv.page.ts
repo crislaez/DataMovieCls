@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { emptyObject, errorImage } from '@clmovies/shareds/shared/utils/utils';
-import { fromTv, Tv, TvActions } from '@clmovies/shareds/tv';
+import { Tv } from '@clmovies/shareds/utils/models';
+import { emptyObject, errorImage } from '@clmovies/shareds/utils/utils/functions';
+import { fromTv, TvActions } from '@clmovies/shareds/tv';
 import { select, Store } from '@ngrx/store';
 import { combineLatest, Observable, tap } from 'rxjs';
 import { filter, startWith, switchMap } from 'rxjs/operators';
@@ -21,7 +22,7 @@ import { filter, startWith, switchMap } from 'rxjs/operators';
 
                 <!-- HEADER  -->
               <div class="header fade-in-card" no-border>
-                <ion-back-button defaultHref="../" class="text-second-color" [text]="''"></ion-back-button>
+                <ion-back-button defaultHref="/tv" class="text-second-color" [text]="''"></ion-back-button>
                 <h1 class="text-second-color">{{tv?.name}} ({{tv?.first_air_date | date: 'y'}})</h1>
                 <div class="header-container-empty" ></div>
               </div>
@@ -76,13 +77,17 @@ import { filter, startWith, switchMap } from 'rxjs/operators';
       </ng-container>
      </ng-container>
 
+      <!-- REFRESH -->
+      <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+        <ion-refresher-content></ion-refresher-content>
+      </ion-refresher>
+
       <!-- IS ERROR -->
       <ng-template #serverError>
         <div class="header" no-border>
           <ion-back-button defaultHref="/tv" class="text-second-color" [text]="''"></ion-back-button>
           <div class="header-container-empty"></div>
         </div>
-
         <div class="error-serve">
           <div>
             <span><ion-icon class="text-second-color big-size" name="cloud-offline-outline"></ion-icon></span>
@@ -92,16 +97,10 @@ import { filter, startWith, switchMap } from 'rxjs/operators';
         </div>
       </ng-template>
 
-       <!-- REFRESH -->
-      <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-        <ion-refresher-content></ion-refresher-content>
-      </ion-refresher>
-
       <!-- IS NO DATA  -->
       <ng-template #noData>
         <div class="header" no-border>
           <ion-back-button defaultHref="/tv" class="text-second-color" [text]="''"></ion-back-button>
-          <!-- <h1 class="text-second-color">{{ card?.name }}</h1> -->
           <div class="header-container-empty"></div>
         </div>
         <div class="error-serve">

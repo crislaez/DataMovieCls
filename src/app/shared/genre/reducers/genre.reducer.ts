@@ -1,8 +1,7 @@
-import { EntityStatus } from '@clmovies/shareds/shared/utils/utils';
+import { EntityStatus } from '@clmovies/shareds/utils/utils/functions';
 import { createReducer, on } from '@ngrx/store';
 import * as GenreActions from '../actions/genre.actions';
-import { Tv } from '@clmovies/shareds/tv';
-import { Movie } from '@clmovies/shareds/movie';
+import { Tv, Movie } from '@clmovies/shareds/utils/models';
 
 export const genreFeatureKey = 'genre';
 
@@ -18,7 +17,7 @@ export interface State{
 const initialState: State = {
   genres: [],
   status: EntityStatus.Initial,
-  page: 0,
+  page: 1,
   total_pages: 0,
   total_results: 0,
   error: undefined
@@ -42,6 +41,5 @@ export const reducer = createReducer(
     }
   }),
 
-
-  on(GenreActions.deleteGenre, (state) => ({...state, tvsGenre:[], page:1}))
+  on(GenreActions.deleteGenre, (state) => ({...state, tvsGenre:[], page:1, total_pages:0, total_results: 0, error: undefined}))
 );

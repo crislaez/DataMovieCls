@@ -3,8 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { CoreConfigService } from '../../../core/services/core-config.service';
-import { Menu, Movie } from '../models';
-
+import { Menu, Movie } from '@clmovies/shareds/utils/models';
 
 @Injectable({
   providedIn: 'root'
@@ -46,23 +45,14 @@ export class MovieService {
     )
   };
 
-  // getMoviesByIdGenre(page:string = '1', genre:string = '12'): Observable<any>{
-  //   return this.http.get<any>(`${this.baseURL}genre/${genre}/movies?api_key=${this.apiKey}&page=${page}`).pipe(
+  // getMoviesSearch(searchName: string): Observable<any>{
+  //   return this.http.get<any>(`${this.baseURL}search/movie?api_key=${this.apiKey}&query=${searchName}`).pipe(
   //     map( ({page, results, total_pages, total_results }) => ({movies: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
   //     catchError((error) => {
   //       return throwError(() => error)
   //     })
   //   )
   // };
-
-  getMoviesSearch(searchName: string): Observable<any>{
-    return this.http.get<any>(`${this.baseURL}search/movie?api_key=${this.apiKey}&query=${searchName}`).pipe(
-      map( ({page, results, total_pages, total_results }) => ({movies: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
-      catchError((error) => {
-        return throwError(() => error)
-      })
-    )
-  };
 
 
 

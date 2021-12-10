@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NotificationActions } from '@clmovies/shareds/notification';
-import { EntityStatus } from '@clmovies/shareds/shared/utils/utils';
+import { EntityStatus } from '@clmovies/shareds/utils/utils/functions';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';

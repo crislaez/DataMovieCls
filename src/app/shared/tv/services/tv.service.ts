@@ -1,11 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Menu } from '@clmovies/shareds/movie';
+import { Menu, Tv } from '@clmovies/shareds/utils/models';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { CoreConfigService } from '../../../core/services/core-config.service';
-import { Tv } from '../models';
-
 
 @Injectable({
   providedIn: 'root'
@@ -47,23 +45,15 @@ export class TvService {
     )
   };
 
-  getTvearch(searchName: string): Observable<any>{
-    return this.http.get<any>(`${this.baseURL}search/tv?api_key=${this.apiKey}&query=${searchName}`).pipe(
-      map( ({page, results, total_pages, total_results }) => ({tvs: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
-      catchError((error) => {
-        return throwError(() => error)
-      })
-    )
-  };
-
-  // getTvsByIdGenre(page:string = '1', genre:string = '12'): Observable<any>{
-  //   return this.http.get<any>(`${this.baseURL}discover/tv?api_key=${this.apiKey}&with_genres=${genre}&page=${page}`).pipe(
+  // getTvearch(searchName: string): Observable<any>{
+  //   return this.http.get<any>(`${this.baseURL}search/tv?api_key=${this.apiKey}&query=${searchName}`).pipe(
   //     map( ({page, results, total_pages, total_results }) => ({tvs: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
   //     catchError((error) => {
   //       return throwError(() => error)
   //     })
   //   )
   // };
+
 
 
 }

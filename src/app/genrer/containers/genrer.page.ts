@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { fromGenre, GenreActions } from '@clmovies/shareds/genre';
-import { fromMovie, Menu } from '@clmovies/shareds/movie';
-import { emptyObject, errorImage, gotToTop, trackById } from '@clmovies/shareds/shared/utils/utils';
+import { fromMovie } from '@clmovies/shareds/movie';
 import { fromTv } from '@clmovies/shareds/tv';
+import { Menu } from '@clmovies/shareds/utils/models';
+import { emptyObject, errorImage, gotToTop, trackById } from '@clmovies/shareds/utils/utils/functions';
 import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 import { select, Store } from '@ngrx/store';
 import { combineLatest, Observable } from 'rxjs';
@@ -50,11 +51,13 @@ import { map, startWith, switchMap, tap } from 'rxjs/operators';
 
                   <!-- INFINITE SCROLL  -->
                   <ng-container *ngIf="(total$ | async) as total">
-                    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
-                      <ion-infinite-scroll-content class="loadingspinner">
-                        <ion-spinner *ngIf="status === 'pending'" class="loadingspinner"></ion-spinner>
-                      </ion-infinite-scroll-content>
-                    </ion-infinite-scroll>
+                    <ng-container *ngIf="statusComponent?.perPage !== total">
+                      <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
+                        <ion-infinite-scroll-content class="loadingspinner">
+                          <ion-spinner *ngIf="status === 'pending'" class="loadingspinner"></ion-spinner>
+                        </ion-infinite-scroll-content>
+                      </ion-infinite-scroll>
+                    </ng-container>
                   </ng-container>
 
                   </ng-container>
@@ -132,16 +135,15 @@ export class GenrerPage {
     this.route.queryParams,
     this.infiniteScroll$.pipe(startWith(this.statusComponent)),
   ]).pipe(
-    tap(data => console.log(data)),
     tap(([{idGenre}, {genre}, {perPage:page}]) => {
       this.store.dispatch(GenreActions.loadGenre({page: page?.toString(), idGenre, genre}))
     }),
-    switchMap(([_, {genre}]) =>
+    switchMap(([{idGenre}, {genre}]) =>
       this.store.select(fromGenre.getGenres).pipe(
-        map(data => ({data, genre}))
+        map(data => ({data, genre, idGenre}))
       )
     )
-    ,tap(res => console.log(res))
+    // ,tap(res => console.log(res))
   );
 
 
@@ -152,6 +154,8 @@ export class GenrerPage {
 
 
   ngOnInit(){
+    this.store.dispatch(GenreActions.deleteGenre())
+    console.log('dentro')
     this.title = this.route.snapshot?.queryParams?.genre;
 
     this.genre$ = this.route.params.pipe(

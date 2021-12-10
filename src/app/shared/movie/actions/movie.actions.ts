@@ -1,6 +1,6 @@
-import { EntityStatus } from '@clmovies/shareds/shared/utils/utils';
+import { Menu, Movie } from '@clmovies/shareds/utils/models';
+import { EntityStatus } from '@clmovies/shareds/utils/utils/functions';
 import { createAction, props } from '@ngrx/store';
-import { Menu, Movie } from '../models';
 
 
 export const loadMenu = createAction(

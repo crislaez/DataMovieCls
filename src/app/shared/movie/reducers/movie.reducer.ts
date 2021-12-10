@@ -1,7 +1,7 @@
-import { createReducer, on  } from '@ngrx/store';
+import { Menu, Movie } from '@clmovies/shareds/utils/models';
+import { EntityStatus } from '@clmovies/shareds/utils/utils/functions';
+import { createReducer, on } from '@ngrx/store';
 import * as MovieActions from '../actions/movie.actions';
-import { Menu, Movie } from '../models';
-import { EntityStatus } from '@clmovies/shareds/shared/utils/utils';
 
 export const movieFeatureKey = 'movie';
 

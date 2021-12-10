@@ -1,8 +1,6 @@
-import { EntityStatus } from '@clmovies/shareds/shared/utils/utils';
+import { EntityStatus } from '@clmovies/shareds/utils/utils/functions';
 import { createAction, props } from '@ngrx/store';
-import { Tv } from '@clmovies/shareds/tv';
-import { Movie } from '@clmovies/shareds/movie';
-
+import { Movie, Tv } from '@clmovies/shareds/utils/models';
 
 export const loadGenre = createAction(
   '[Genre] Load Genre',

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NotificationActions } from '@clmovies/shareds/notification';
-import { EntityStatus } from '@clmovies/shareds/shared/utils/utils';
+import { EntityStatus } from '@clmovies/shareds/utils/utils/functions';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
@@ -54,21 +54,6 @@ export class TvEffects {
       )
     )
   );
-
-  // loadTvsGenre$ = createEffect( () =>
-  //   this.actions$.pipe(
-  //     ofType(TvActions.loadTvsGenre),
-  //     switchMap( ({page, idGenre}) =>
-  //       this._tv.getTvsByIdGenre(page, idGenre).pipe(
-  //         map( ({tvs, page, total_pages, total_results}) => TvActions.saveTvsGenre({ tvs, page, total_pages, total_results, status: EntityStatus.Loaded, error: undefined })),
-  //         catchError( (error) => of(
-  //           TvActions.saveTvsGenre({ tvs: [], page: 1, total_pages: 0 , total_results:0, status: EntityStatus.Error, error }),
-  //           NotificationActions.notificationFailure({message: 'ERRORS.ERROR_LOAD_TV_GENRE'})
-  //         ))
-  //       )
-  //     )
-  //   )
-  // );
 
 
   loadTvInit$ = createEffect(() =>

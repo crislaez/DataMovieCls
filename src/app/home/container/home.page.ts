@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, ViewChild } from '@angular/core';
 import { fromMovie, MovieActions } from '@clmovies/shareds/movie';
-import { errorImage, gotToTop, trackById } from '@clmovies/shareds/shared/utils/utils';
+import { errorImage, gotToTop, trackById } from '@clmovies/shareds/utils/utils/functions';
 import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 import { select, Store } from '@ngrx/store';
 import { startWith, switchMap, tap } from 'rxjs/operators';
@@ -55,11 +55,13 @@ import { startWith, switchMap, tap } from 'rxjs/operators';
                   </ion-card>
 
                   <ng-container *ngIf="(total$ | async) as total">
-                    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
-                      <ion-infinite-scroll-content class="loadingspinner">
-                        <ion-spinner *ngIf="status === 'pending'" class="loadingspinner"></ion-spinner>
-                      </ion-infinite-scroll-content>
-                    </ion-infinite-scroll>
+                    <ng-container *ngIf="statusComponent?.perPage !== total">
+                      <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
+                        <ion-infinite-scroll-content class="loadingspinner">
+                          <ion-spinner *ngIf="status === 'pending'" class="loadingspinner"></ion-spinner>
+                        </ion-infinite-scroll-content>
+                      </ion-infinite-scroll>
+                    </ng-container>
                   </ng-container>
 
                 </ng-container>

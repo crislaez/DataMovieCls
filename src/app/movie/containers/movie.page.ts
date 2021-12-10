@@ -1,8 +1,9 @@
 
 import { ChangeDetectionStrategy, Component, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { fromMovie, Movie, MovieActions } from '@clmovies/shareds/movie';
-import { emptyObject, errorImage } from '@clmovies/shareds/shared/utils/utils';
+import { fromMovie, MovieActions } from '@clmovies/shareds/movie';
+import { Movie } from '@clmovies/shareds/utils/models';
+import { emptyObject, errorImage } from '@clmovies/shareds/utils/utils/functions';
 import { select, Store } from '@ngrx/store';
 import { combineLatest, Observable, tap } from 'rxjs';
 import { filter, startWith, switchMap } from 'rxjs/operators';

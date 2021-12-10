@@ -244,7 +244,7 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-$backColor: #032541;
+$backColor: #1D2536;
 $textColor: white;
 
 
@@ -297,7 +297,7 @@ ion-header{
 }
 
 .back-color {
-  --background: #032541;
+  --background: #1D2536;
 }
 
 //footer barra abajo
@@ -309,6 +309,7 @@ ion-tab-bar{
 ion-searchbar{
   --box-shadow: none !important;
   --border-radius: 50px !important;
+  --background:#F4F4F4;
 }
 
 ion-menu{
@@ -319,7 +320,7 @@ ion-menu{
 
   //contenido dentro de cada lista del menu lateral
   ion-item{
-    --background: #032541 !important;
+    --background: #1D2536 !important;
   }
 }
 
@@ -372,7 +373,7 @@ ion-card{
 
 //COLOR LOADER
 .loadingspinner{
-  --color : #032541;
+  --color : #1D2536;
 }
 
 // CAPITAL LETTER

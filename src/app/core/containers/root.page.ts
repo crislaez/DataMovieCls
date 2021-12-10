@@ -1,11 +1,12 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { MenuController } from '@ionic/angular';
-import { Observable } from 'rxjs';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { Store, select } from '@ngrx/store';
-import { fromMovie, Menu, MovieActions } from '@clmovies/shareds/movie';
+import { fromMovie } from '@clmovies/shareds/movie';
+import { Menu } from '@clmovies/shareds/utils/models';
 import { fromTv } from '@clmovies/shareds/tv';
-import { tap } from 'rxjs/operators';
+import { MenuController } from '@ionic/angular';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+
 
 @Component({
   selector: 'app-root',

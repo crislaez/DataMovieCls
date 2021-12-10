@@ -1,0 +1,1 @@
+{"ast":null,"code":"import { createAction, props } from '@ngrx/store';\nexport const loadSearch = createAction('[Search] Load search', props());\nexport const saveSearch = createAction('[Movie] Save search', props());\nexport const deleteSearch = createAction('[Search] Delete search');","map":null,"metadata":{},"sourceType":"module"}

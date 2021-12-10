@@ -1,21 +1,21 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Keyboard } from '@capacitor/keyboard';
-import { Movie, MovieService } from '@clmovies/shareds/movie';
-import { Tv, TvService } from '@clmovies/shareds/tv';
-import { IonContent, Platform } from '@ionic/angular';
-import { Observable } from 'rxjs';
-import { catchError, filter, finalize, map, startWith, switchMap, tap } from 'rxjs/operators';
+import { fromSearch, SearchActions } from '@clmovies/shareds/search';
+import { errorImage, trackById, gotToTop, EntityStatus } from '@clmovies/shareds/utils/utils/functions';
+import { IonContent, IonInfiniteScroll, Platform } from '@ionic/angular';
+import { Store } from '@ngrx/store';
+import { filter, switchMap, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-search',
   template: `
-    <ion-content [fullscreen]="true">
+    <ion-content [fullscreen]="true" [scrollEvents]="true" (ionScroll)="logScrolling($any($event))">
       <div class="container components-color">
 
         <!-- HEADER  -->
         <div class="header" no-border>
-          <ng-container *ngIf="showMovie === 'movie' ; else tvs">
+          <ng-container *ngIf="statusComponent?.searchType === 'movie'; else tvs">
             <h1 class="text-second-color">{{'COMMON.MOVIE' | translate }}</h1>
           </ng-container>
           <ng-template #tvs>
@@ -30,39 +30,54 @@ import { catchError, filter, finalize, map, startWith, switchMap, tap } from 'rx
               <ion-label>{{'COMMON.TV' | translate }}</ion-label>
             </ion-segment-button>
           </ion-segment>
+
         </div>
 
-        <ng-container *ngIf="showMovie === 'movie' ; else showTv">
-          <form class="form" (submit)="searchSubmit($event)" >
-            <ion-searchbar color="light" [placeholder]="'COMMON.SEARCH' | translate" [formControl]="search" (ionClear)="clearSearchMovie($event)"></ion-searchbar>
-          </form>
+        <form class="form" (submit)="searchSubmit($event)" >
+          <ion-searchbar class="text-second-color" [placeholder]="'COMMON.SEARCH' | translate" [formControl]="search" (ionClear)="clearSearch($event)"></ion-searchbar>
+        </form>
 
-          <app-search-result class="div-result"
-            [serachResults]="(movies$ | async)"
-            [showInfo]="showInfo['movie']"
-            [pending]="pending"
-            [route]="'movie'">
-          </app-search-result>
-        </ng-container>
+          <ng-container *ngIf="(info$ | async) as info">
+            <ng-container *ngIf="(status$ | async) as status">
+              <ng-container *ngIf="status !== 'pending' || statusComponent?.perPage !== 1; else loader">
+                <ng-container *ngIf="status !== 'error'; else serverError">
+                  <ng-container *ngIf="statusComponent?.searchName">
 
-        <ng-template #showTv>
-          <form class="form" (submit)="searchTvSubmit($event)">
-            <ion-searchbar color="light" [placeholder]="'COMMON.SEARCH' | translate" [formControl]="searchTv" (ionClear)="clearSearchTv($event)"></ion-searchbar>
-          </form>
+                    <ng-container *ngIf="info?.length > 0; else noData">
 
-          <app-search-result class="div-result"
-          [serachResults]="(tvs$ | async)"
-          [showInfo]="showInfo['tv']"
-          [pending]="pending"
-          [route]="'tv'">
-          </app-search-result>
-        </ng-template>
+                      <ion-card class="ion-activatable ripple-parent fade-in-card" [routerLink]="['/'+statusComponent?.searchType+'/'+serachResult?.id]" *ngFor="let serachResult of info; trackBy: trackById" >
+                        <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+serachResult?.poster_path" [alt]="serachResult?.poster_path" (error)="errorImage($event)"/>
+                        <ion-card-header>
+                          <ion-card-title class="text-color">{{serachResult?.original_title || serachResult?.name }}</ion-card-title>
+                        </ion-card-header>
+                        <ion-card-content class="text-color">
+                          {{ 'COMMON.POINTS' | translate }}: {{serachResult?.vote_average}}
+                        </ion-card-content>
+                        <ion-ripple-effect></ion-ripple-effect>
+                      </ion-card>
+
+                      <ng-container *ngIf="(total$ | async) as total">
+                        <ng-container *ngIf="statusComponent?.perPage !== total">
+                          <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event, total)">
+                            <ion-infinite-scroll-content class="loadingspinner">
+                              <ion-spinner *ngIf="$any(status) === 'pending'" class="loadingspinner"></ion-spinner>
+                            </ion-infinite-scroll-content>
+                          </ion-infinite-scroll>
+                        </ng-container>
+                      </ng-container>
+
+                    </ng-container>
+
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+          </ng-container>
 
          <!-- REFRESH -->
         <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
           <ion-refresher-content></ion-refresher-content>
         </ion-refresher>
-
 
         <!-- IS ERROR -->
         <ng-template #serverError>
@@ -88,6 +103,11 @@ import { catchError, filter, finalize, map, startWith, switchMap, tap } from 'rx
         </ng-template>
 
       </div>
+
+      <!-- TO TOP BUTTON  -->
+      <ion-fab *ngIf="showButton" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button class="back-color color-button-text" (click)="gotToTop(content)"> <ion-icon name="arrow-up-circle-outline"></ion-icon></ion-fab-button>
+      </ion-fab>
     </ion-content >
   `,
   styleUrls: ['./search.page.scss'],
@@ -95,112 +115,103 @@ import { catchError, filter, finalize, map, startWith, switchMap, tap } from 'rx
 })
 export class SearchPage  {
 
+  errorImage = errorImage;
+  trackById = trackById;
+  gotToTop = gotToTop;
+  @ViewChild(IonInfiniteScroll) ionInfiniteScroll: IonInfiniteScroll;
   @ViewChild(IonContent, {static: true}) content: IonContent;
+  showButton: boolean = false;
+
   search = new FormControl('');
-  searchTv = new FormControl('');
-  searchMovieValue$ = new EventEmitter()
-  searchTvValue$ = new EventEmitter()
-  reload$ = new EventEmitter();
-  typeSearch$ = new EventEmitter()
-  pending = false;
-  showMovie = 'movie';
-  showInfo:{[key:string]:boolean} = {
-    movie: false,
-    tv: false
+  total$ = this.store.select(fromSearch.getTotalPages);
+  status$ = this.store.select(fromSearch.getStatus);
+
+  infiniteScroll$ = new EventEmitter<{perPage?:number, searchName?:string, searchType?:string}>();
+
+  statusComponent: { perPage?:number, searchName?:string, searchType?:string } = {
+    perPage: 1,
+    searchName: '',
+    searchType: 'movie'
   };
 
-  // status$ = this.store.pipe(select(fronMovie.getStatus));
-  // status$ = this.store.pipe(select(fronMovie.getStatus));
-
-  movies$: Observable<Movie[]> = this.searchMovieValue$.pipe(
-    startWith(''),
-    filter( (search) => !!search),
-    tap(() => this.pending = true),
-    switchMap( (search) =>
-      this._movie.getMoviesSearch(search).pipe(
-        map(({movies}) => movies),
-        catchError(() => [[]] ),
-        finalize(() => this.pending = false)
-      )
+  info$ = this.infiniteScroll$.pipe(
+    filter(({searchName}) => !!searchName),
+    tap(({perPage:page, searchName, searchType}) =>
+      this.store.dispatch(SearchActions.loadSearch({searchName, searchType, page: page?.toString()}))
+    ),
+    switchMap(() =>
+      this.store.select(fromSearch.getSearchs)
     )
-  );
-
-  tvs$: Observable<Tv[]> = this.searchTvValue$.pipe(
-    startWith(''),
-    filter((search) => !!search),
-    tap(() => this.pending = true),
-    switchMap( (search) =>
-      this._tv.getTvearch(search).pipe(
-        map(({tvs}) => tvs),
-        catchError(() => [[]]),
-        finalize(() => this.pending = false)
-      )
-    )
+    ,tap(data => console.log(data))
   );
 
 
   constructor(
-    private _movie: MovieService,
-    private _tv: TvService,
+    private store: Store,
     public platform: Platform
   ) { }
 
 
-   //FORMULARIO MOVIE
+  //FORMULARIO MOVIE
   searchSubmit(event: Event): void{
     event.preventDefault();
     if(!this.platform.is('mobileweb')) Keyboard.hide();
-    this.searchMovieValue$.next(this.search.value);
-    this.showInfo['movie'] = true;
-  }
-
-   //FORMULARIO TV
-  searchTvSubmit(event: Event): void{
-    event.preventDefault();
-    if(!this.platform.is('mobileweb')) Keyboard.hide();
-    this.searchTvValue$.next(this.searchTv.value);
-    this.showInfo['tv'] = true;
-  }
-
-  // DELETE SEARCH MOVIE
-  clearSearchMovie(event): void{
-    if(!this.platform.is('mobileweb')) Keyboard.hide();
-    this.search.reset();
-    this.searchMovieValue$.next(' ');
-    this.showInfo['movie'] = false;
+    this.statusComponent = {...this.statusComponent, perPage: 1, searchName:this.search.value};
+    this.infiniteScroll$.next(this.statusComponent);
+    if(this.ionInfiniteScroll) this.ionInfiniteScroll.disabled = false;
   }
 
   // DELETE SEARCH TV
-  clearSearchTv(event): void{
+  clearSearch(event): void{
     if(!this.platform.is('mobileweb')) Keyboard.hide();
-    this.searchTv.reset();
-    this.searchTvValue$.next(' ');
-    this.showInfo['tv'] = false;
+    this.search.reset();
+    this.statusComponent = {...this.statusComponent, perPage: 1, searchName:''};
+    this.infiniteScroll$.next(this.statusComponent);
+    if(this.ionInfiniteScroll) this.ionInfiniteScroll.disabled = false;
   }
 
   // REFRES
   doRefresh(event) {
     setTimeout(() => {
+      this.store.dispatch(SearchActions.deleteSearch())
       this.search.reset();
-      this.searchTv.reset();
-      this.showInfo['movie'] = false;
-      this.showInfo['tv'] = false;
-      this.searchMovieValue$.next('');
-      this.searchTvValue$.next('');
+      this.statusComponent = {...this.statusComponent, perPage: 1, searchName:''};
+      this.infiniteScroll$.next(this.statusComponent);
+      if(this.ionInfiniteScroll) this.ionInfiniteScroll.disabled = false;
+
       event.target.complete();
     }, 500);
   }
 
-  scrollToTop() {
-    this.content.scrollToTop();
+  // INIFINITE SCROLL
+  loadData(event, total) {
+    setTimeout(() => {
+      this.statusComponent = {...this.statusComponent, perPage: this.statusComponent?.perPage + 1};
+
+      if(this.statusComponent?.perPage > total){
+        if(this.ionInfiniteScroll) this.ionInfiniteScroll.disabled = true
+      }
+
+      this.infiniteScroll$.next(this.statusComponent);
+      event.target.complete();
+    }, 500);
   }
 
+
+  // SCROLL EVENT
+  logScrolling({detail:{scrollTop}}): void{
+    if(scrollTop >= 300) this.showButton = true
+    else this.showButton = false
+  }
+
+  //SEGMENT
   segmentChanged(event): void{
-    this.scrollToTop()
-    this.showMovie = event?.detail?.value
+    this.content.scrollToTop();
     this.search.reset();
-    this.searchTv.reset();
-    this.typeSearch$.next(event?.detail?.value)
+    this.store.dispatch(SearchActions.deleteSearch())
+    this.statusComponent = {...this.statusComponent, searchName:'', perPage: 1, searchType: event?.detail?.value};
+    this.infiniteScroll$.next(this.statusComponent);
+    if(this.ionInfiniteScroll) this.ionInfiniteScroll.disabled = false;
   }
 
 }
