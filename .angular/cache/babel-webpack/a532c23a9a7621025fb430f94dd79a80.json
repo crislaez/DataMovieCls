@@ -1,0 +1,1 @@
+{"ast":null,"code":"import { createAction, props } from '@ngrx/store';\nexport const loadPokemon = createAction('[Pokemon] Load Genre');\nexport const loadPokemonSuccess = createAction('[Pokemon] Load Genre Success', props());\nexport const loadPokemonFailure = createAction('[Pokemon] Load Genre Failure', props());","map":null,"metadata":{},"sourceType":"module"}

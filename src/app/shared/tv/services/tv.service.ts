@@ -12,6 +12,7 @@ export class TvService {
 
   baseURL: string = `${this._coreConfig.getEndpoint()}`;
   apiKey: string = this._coreConfig.getApiKey();
+  perPage: string = this._coreConfig.getPerPage();
 
 
   constructor(private http: HttpClient, private _coreConfig: CoreConfigService) { }
@@ -44,15 +45,6 @@ export class TvService {
       })
     )
   };
-
-  // getTvearch(searchName: string): Observable<any>{
-  //   return this.http.get<any>(`${this.baseURL}search/tv?api_key=${this.apiKey}&query=${searchName}`).pipe(
-  //     map( ({page, results, total_pages, total_results }) => ({tvs: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
-  //     catchError((error) => {
-  //       return throwError(() => error)
-  //     })
-  //   )
-  // };
 
 
 

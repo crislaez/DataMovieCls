@@ -10,6 +10,7 @@ export class SearchService {
 
   baseURL: string = `${this._coreConfig.getEndpoint()}`;
   apiKey: string = this._coreConfig.getApiKey();
+  perPage: string = this._coreConfig.getPerPage();
 
 
   constructor(private http: HttpClient, private _coreConfig: CoreConfigService) { }

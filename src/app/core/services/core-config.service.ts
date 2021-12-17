@@ -35,4 +35,8 @@ export class CoreConfigService {
     return `${this._env.apiKey}`
   }
 
+  getPerPage(): string{
+    return this._env.perPage;
+  }
+
 }

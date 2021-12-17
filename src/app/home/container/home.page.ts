@@ -118,6 +118,7 @@ export class HomePage  {
   @ViewChild(IonInfiniteScroll) ionInfiniteScroll: IonInfiniteScroll;
   @ViewChild(IonContent, {static: true}) content: IonContent;
 
+  slideOpts;
   showButton: boolean = false;
   infiniteScroll$ = new EventEmitter<{perPage?:number, typeMovie?:string}>();
   statusComponent: { perPage?:number, typeMovie?:string } = {
@@ -143,6 +144,17 @@ export class HomePage  {
     private store: Store
   ) { }
 
+
+  ngOnInit(): void{
+    this.slideOpts = {
+      initialSlide: 0,
+      speed: 400,
+      slidesPerView: 'auto',
+      slidesOffsetBefore: 8,
+      watchOverflow: true,
+
+    };
+  }
 
   segmentChanged(event): void{
     this.store.dispatch(MovieActions.deleteMovies());

@@ -325,25 +325,26 @@ ion-menu{
 }
 
 ion-card{
-  width: 40%;
+  width: 27%;
   background: $backColor;
   // --background: rgba(255,255,255,0.1);
 
   //titulo de la card
   ion-card-title{
-    font-size: 17px;
+    font-size: 10px;
     text-align: center;
   }
 
   //contenido de la card
   ion-card-content{
-    font-size: 13px;
+    font-size: 8px;
     text-align: center;
   }
 
-  // img{
-  //   height: 18em;
-  // }
+  img{
+    width: 100%;
+    min-height: 10em;
+  }
 }
 
 //efecto riple para las redirecciones como los botones
@@ -449,7 +450,7 @@ ion-card{
 
   h1, h2{
     font-weight: bold;
-    font-size: 35px;
+    font-size: 27px;
     margin-top: 0px;
     width: 74%;
     margin: auto;

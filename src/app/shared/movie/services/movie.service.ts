@@ -12,6 +12,7 @@ export class MovieService {
 
   baseURL: string = `${this._coreConfig.getEndpoint()}`;
   apiKey: string = this._coreConfig.getApiKey();
+  perPage: string = this._coreConfig.getPerPage();
 
 
   constructor(private http: HttpClient, private _coreConfig: CoreConfigService) { }
@@ -24,7 +25,7 @@ export class MovieService {
         return throwError(() => error)
       })
     )
-  };
+  }
 
   getMovie(idMovie: string): Observable<Movie>{
     if(!idMovie) return null
@@ -34,7 +35,7 @@ export class MovieService {
         return throwError(() => error)
       })
     )
-  };
+  }
 
   getMoviesPopular(typeMovie:string = 'popular', page:string = '1'): Observable<any>{
     return this.http.get<any>(`${this.baseURL}movie/${typeMovie}?api_key=${this.apiKey}&page=${page}`).pipe(
@@ -43,16 +44,7 @@ export class MovieService {
         return throwError(() => error)
       })
     )
-  };
-
-  // getMoviesSearch(searchName: string): Observable<any>{
-  //   return this.http.get<any>(`${this.baseURL}search/movie?api_key=${this.apiKey}&query=${searchName}`).pipe(
-  //     map( ({page, results, total_pages, total_results }) => ({movies: results || [], page:page || 1, total_pages:total_pages || 0 , total_results:total_results || 0})),
-  //     catchError((error) => {
-  //       return throwError(() => error)
-  //     })
-  //   )
-  // };
+  }
 
 
 
