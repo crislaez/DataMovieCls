@@ -1,0 +1,6 @@
+{
+	"appId": "com.example.datamovies",
+	"appName": "DataMovies",
+	"webDir": "www",
+	"bundledWebRuntime": false
+}

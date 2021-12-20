@@ -47,12 +47,11 @@ import { filter, switchMap, tap } from 'rxjs/operators';
 
                       <ion-card class="ion-activatable ripple-parent fade-in-card" [routerLink]="['/'+statusComponent?.searchType+'/'+serachResult?.id]" *ngFor="let serachResult of info; trackBy: trackById" >
                         <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+serachResult?.poster_path" [alt]="serachResult?.poster_path" (error)="errorImage($event)"/>
+
                         <ion-card-header>
-                          <ion-card-title class="text-color">{{serachResult?.original_title || serachResult?.name }}</ion-card-title>
+                          <ion-card-title class="text-color">{{serachResult?.vote_average }}</ion-card-title>
                         </ion-card-header>
-                        <ion-card-content class="text-color">
-                          {{ 'COMMON.POINTS' | translate }}: {{serachResult?.vote_average}}
-                        </ion-card-content>
+
                         <ion-ripple-effect></ion-ripple-effect>
                       </ion-card>
 
@@ -99,7 +98,9 @@ import { filter, switchMap, tap } from 'rxjs/operators';
 
         <!-- LOADER  -->
         <ng-template #loader>
-          <ion-spinner class="loadingspinner"></ion-spinner>
+          <div class="error-serve">
+            <ion-spinner class="loadingspinner"></ion-spinner>
+          </div>
         </ng-template>
 
       </div>

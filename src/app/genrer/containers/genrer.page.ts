@@ -38,13 +38,10 @@ import { map, startWith, switchMap, tap } from 'rxjs/operators';
 
                   <ion-card class="ion-activatable ripple-parent fade-in-card" [routerLink]="['/'+info?.genre+'/'+item?.id]" *ngFor="let item of info?.data; trackBy: trackById" >
                     <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+item?.poster_path" [alt]="item?.poster_path" (error)="errorImage($event)"/>
-                    <ion-card-header>
-                      <ion-card-title class="text-color">{{item?.original_title || item?.original_name}}</ion-card-title>
-                    </ion-card-header>
 
-                    <ion-card-content class="text-color">
-                      {{ 'COMMON.POINTS' | translate }}: {{item?.vote_average}}
-                    </ion-card-content>
+                    <ion-card-header>
+                      <ion-card-title class="text-color">{{item?.vote_average}}</ion-card-title>
+                    </ion-card-header>
 
                     <ion-ripple-effect></ion-ripple-effect>
                   </ion-card>
@@ -93,7 +90,9 @@ import { map, startWith, switchMap, tap } from 'rxjs/operators';
 
         <!-- LOADER  -->
         <ng-template #loader>
-          <ion-spinner class="loadingspinner"></ion-spinner>
+          <div class="error-serve">
+            <ion-spinner class="loadingspinner"></ion-spinner>
+          </div>
         </ng-template>
 
       </div>

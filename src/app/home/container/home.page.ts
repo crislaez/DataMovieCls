@@ -45,12 +45,9 @@ import { startWith, switchMap, tap } from 'rxjs/operators';
                     <img loading="lazy" [src]="'https://image.tmdb.org/t/p/w500'+movie?.poster_path" [alt]="movie?.poster_path" (error)="errorImage($event)"/>
 
                     <ion-card-header>
-                      <ion-card-title class="text-color">{{movie?.original_title}}</ion-card-title>
+                      <ion-card-title class="text-color">{{movie?.vote_average}}</ion-card-title>
                     </ion-card-header>
 
-                    <ion-card-content class="text-color">
-                    {{ 'COMMON.POINTS' | translate }}: {{movie?.vote_average}}
-                    </ion-card-content>
                     <ion-ripple-effect></ion-ripple-effect>
                   </ion-card>
 
@@ -96,7 +93,9 @@ import { startWith, switchMap, tap } from 'rxjs/operators';
 
         <!-- LOADER  -->
         <ng-template #loader>
-          <ion-spinner class="loadingspinner"></ion-spinner>
+          <div class="error-serve">
+            <ion-spinner class="loadingspinner"></ion-spinner>
+          </div>
         </ng-template>
 
       </div>

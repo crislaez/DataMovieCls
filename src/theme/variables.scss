@@ -327,7 +327,16 @@ ion-menu{
 ion-card{
   width: 27%;
   background: $backColor;
+  box-shadow: none !important;
   // --background: rgba(255,255,255,0.1);
+
+  ion-card-header{
+    width: 55%;
+    margin: 0 auto;
+    background: $backColor;
+    margin-top: -15px;
+    border-radius: 10px;
+  }
 
   //titulo de la card
   ion-card-title{
