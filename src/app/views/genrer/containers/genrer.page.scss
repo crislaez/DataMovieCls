@@ -1,0 +1,14 @@
+@import '../../../../theme/variables.scss';
+
+.loader {
+  display: block;
+  position: absolute;
+  margin: 0 auto;
+  margin-left: 45%;
+  margin-top: 90%;
+}
+
+ion-card{
+  background: none !important;
+}
+

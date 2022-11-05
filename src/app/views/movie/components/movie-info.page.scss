@@ -1,0 +1,22 @@
+@import '../../../../theme/variables.scss';
+
+:host{
+  width: 100%;
+}
+
+ion-card{
+  width: 100% !important;
+  margin: 0;
+}
+
+ion-card-content{
+  >div{
+    text-align: start;
+  }
+}
+
+.class-ion-button{
+  --background: $secondary !important;
+  --color: #9246FF !important;
+  text-transform: initial;
+}

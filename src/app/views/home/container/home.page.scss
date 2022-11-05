@@ -1,0 +1,23 @@
+@import '../../../../theme/variables.scss';
+
+
+app-item-card{
+  width: 32%;
+}
+
+form{
+  width: 75%;
+}
+
+ion-button{
+  --border-radius: 5px !important;
+  --background: none;
+  color: $textColor;
+  // color: $secondary // $tertiary;
+  width: 15%;
+}
+
+
+ion-segment-button{
+  --color-checked: #9246FF;
+}
